@@ -1,0 +1,368 @@
+{
+  "id": "test02",
+  "title": "IELTS Listening Test 02",
+  "audioUrl": "/audio/test02.mp3",
+  "sections": [
+    {
+      "section": 1,
+      "instructions": "SECTION 1 Questions 1–10: Mixed question types (MCQ, Matching, Fill in the Blank).",
+      "questions": [
+        {
+          "questionNumber": 1,
+          "questionText": "The teacher praised student Emma for",
+          "type": "mcq",
+          "options": [
+            "her good performance in a public show",
+            "setting a good example for others",
+            "settling in quickly"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 2,
+          "questionText": "Why has the timetable for drama class changed?",
+          "type": "mcq",
+          "options": [
+            "Because of falling enrollment",
+            "Because the class size is too big",
+            "Because of the availability of music room"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 3,
+          "questionText": "What is the new time for the drama class?",
+          "type": "mcq",
+          "options": ["3.15 pm", "4.15 pm", "4.45 pm"],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 4,
+          "questionText": "Dance class",
+          "type": "matching",
+          "options": [
+            "The course is full",
+            "The course fee is too expensive",
+            "She has another activity at that time",
+            "She has another activity that evening",
+            "The class is too late"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 5,
+          "questionText": "Singing class",
+          "type": "matching",
+          "options": [
+            "The course is full",
+            "The course fee is too expensive",
+            "She has another activity at that time",
+            "She has another activity that evening",
+            "The class is too late"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 6,
+          "questionText": "Vocal class",
+          "type": "matching",
+          "options": [
+            "The course is full",
+            "The course fee is too expensive",
+            "She has another activity at that time",
+            "She has another activity that evening",
+            "The class is too late"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 7,
+          "questionText": "The class teaches children to play instruments and how to",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 8,
+          "questionText": "Cost of the course:",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 9,
+          "questionText": "Date Emma starts the course:",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 10,
+          "questionText": "Teacher:",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        }
+      ]
+    },
+    {
+      "section": 2,
+      "instructions": "SECTION 2 Questions 11–20: Mixed question types (MCQ and Matching).",
+      "questions": [
+        {
+          "questionNumber": 11,
+          "questionText": "Why does the speaker recommend the sky hotel?",
+          "type": "mcq",
+          "options": [
+            "Because it is quite comfortable",
+            "Because it provides ski and snowboard equipment rentals",
+            "Because it has health and sports club"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 12,
+          "questionText": "What is new in this year's exhibition?",
+          "type": "mcq",
+          "options": [
+            "photos of top ski resorts worldwide",
+            "ski equipment",
+            "computer simulation"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 13,
+          "questionText": "How do people enter the skiing and snowboarding competition?",
+          "type": "mcq",
+          "options": [
+            "They can send emails to the committee",
+            "They can fill out the back of the entrance ticket",
+            "They can check out the exhibition newsletter"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 14,
+          "questionText": "What did the media focus on this year?",
+          "type": "mcq",
+          "options": [
+            "not enough snow",
+            "reduction in fee",
+            "the decline of participants"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 15,
+          "questionText": "Why does the speaker recommend the ski program?",
+          "type": "mcq",
+          "options": [
+            "The instructors are quite friendly and patient",
+            "It includes lessons and sessions that suit only beginners",
+            "It provides special offers at the moment"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 16,
+          "questionText": "Simon's talk",
+          "type": "matching",
+          "options": [
+            "exploring new destinations",
+            "how to make the skiing boots comfortable",
+            "how to become a ski instructor",
+            "how to combine other activities with skiing",
+            "how to improve the skills of skiing",
+            "information about skiing safety"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 17,
+          "questionText": "Solution",
+          "type": "matching",
+          "options": [
+            "exploring new destinations",
+            "how to make the skiing boots comfortable",
+            "how to become a ski instructor",
+            "how to combine other activities with skiing",
+            "how to improve the skills of skiing",
+            "information about skiing safety"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 18,
+          "questionText": "Film",
+          "type": "matching",
+          "options": [
+            "exploring new destinations",
+            "how to make the skiing boots comfortable",
+            "how to become a ski instructor",
+            "how to combine other activities with skiing",
+            "how to improve the skills of skiing",
+            "information about skiing safety"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 19,
+          "questionText": "Tricks",
+          "type": "matching",
+          "options": [
+            "exploring new destinations",
+            "how to make the skiing boots comfortable",
+            "how to become a ski instructor",
+            "how to combine other activities with skiing",
+            "how to improve the skills of skiing",
+            "information about skiing safety"
+          ],
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 20,
+          "questionText": "Johnson's talk",
+          "type": "matching",
+          "options": [
+            "exploring new destinations",
+            "how to make the skiing boots comfortable",
+            "how to become a ski instructor",
+            "how to combine other activities with skiing",
+            "how to improve the skills of skiing",
+            "information about skiing safety"
+          ],
+          "correctAnswer": ""
+        }
+      ]
+    },
+    {
+      "section": 3,
+      "instructions": "SECTION 3 Questions 21–30: Fill in the blanks using ONE OR TWO WORDS.",
+      "questions": [
+        {
+          "questionNumber": 21,
+          "questionText": "The new teacher who is very popular among students wrote a book titled",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 22,
+          "questionText": "It covers techniques including doing research as part of a",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 23,
+          "questionText": "The objective is for the students to present",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 24,
+          "questionText": "Students examine the",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 25,
+          "questionText": "Keep a",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 26,
+          "questionText": "Carry out",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 27,
+          "questionText": "In-class",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 28,
+          "questionText": "Evaluate",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 29,
+          "questionText": "With the help of",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 30,
+          "questionText": "Choose own respondents to do",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        }
+      ]
+    },
+    {
+      "section": 4,
+      "instructions": "SECTION 4 Questions 31–40: Complete the sentences with ONE WORD ONLY.",
+      "questions": [
+        {
+          "questionNumber": 31,
+          "questionText": "consume more",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 32,
+          "questionText": "good for some",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 33,
+          "questionText": "poor",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 34,
+          "questionText": "clean energy: recycling of methane gas produced from",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 35,
+          "questionText": "better chance of getting a",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 36,
+          "questionText": "possible to lose",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 37,
+          "questionText": "higher rates of",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 38,
+          "questionText": "poor quality of",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 39,
+          "questionText": "Increased",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        },
+        {
+          "questionNumber": 40,
+          "questionText": "people find the heavy",
+          "type": "fill-blank",
+          "correctAnswer": ""
+        }
+      ]
+    }
+  ]
+}
