@@ -2,7 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/lib/supabaseClient';
 import { generateDynamicLesson } from '@/services/aiLessonService';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]'; // Ensure this import is correct
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+
 import { Lesson } from '@/types';
 
 export default async function handler(

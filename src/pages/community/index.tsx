@@ -4,28 +4,11 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from '@/context/ThemeContext'; // Import theme context
 
 export default function Community() {
   const { user } = useAuth();
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches;
-    if (savedMode === 'true' || (!savedMode && prefersDark)) {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', String(newMode));
-    document.documentElement.classList.toggle('dark', newMode);
-  };
+  const { theme, toggleTheme } = useTheme(); // Use the theme and toggle function from ThemeContext
 
   const features = [
     {
@@ -64,7 +47,9 @@ export default function Community() {
 
   return (
     <motion.section
-      className="px-4 sm:px-6 md:px-12 lg:px-20 py-16 bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 min-h-screen"
+      className={`px-4 sm:px-6 md:px-12 lg:px-20 py-16 bg-gradient-to-b ${
+        theme === 'light' ? 'from-gray-50 to-white' : 'from-gray-900 to-gray-800'
+      } min-h-screen`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -93,14 +78,14 @@ export default function Community() {
       {/* Dark Mode Toggle */}
       <div className="mb-10 flex justify-end">
         <motion.button
-          onClick={toggleDarkMode}
+          onClick={toggleTheme}
           className="relative inline-flex items-center p-1 rounded-full bg-gray-200 dark:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md"
-          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
           <span className="w-8 h-8 flex items-center justify-center text-xl">
-            {darkMode ? '☀️' : '🌙'}
+            {theme === 'dark' ? '☀️' : '🌙'}
           </span>
         </motion.button>
       </div>
@@ -160,9 +145,7 @@ export default function Community() {
             'Report any inappropriate content to moderators',
           ].map((guideline, i) => (
             <li key={i} className="flex items-start">
-              <span className="text-yellow-600 dark:text-yellow-400 mr-3">
-                •
-              </span>
+              <span className="text-yellow-600 dark:text-yellow-400 mr-3">•</span>
               <span>{guideline}</span>
             </li>
           ))}

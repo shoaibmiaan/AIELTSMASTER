@@ -41,7 +41,7 @@ export default function AIToolsPortal() {
         'Get instant feedback on your IELTS writing tasks with detailed scoring.',
       categories: ['text'],
       icon: 'edit-3',
-      color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/30',
+      color: 'text-indigo_dye bg-indigo_dye/10 dark:bg-indigo_dye/30',
       locked: true,
     },
     {
@@ -51,7 +51,7 @@ export default function AIToolsPortal() {
         'Practice IELTS speaking with AI-powered mock interviews and feedback.',
       categories: ['audio'],
       icon: 'mic',
-      color: 'text-purple-500 bg-purple-50 dark:bg-purple-900/30',
+      color: 'text-persian_red bg-persian_red/10 dark:bg-persian_red/30',
       locked: true,
     },
     {
@@ -61,7 +61,7 @@ export default function AIToolsPortal() {
         'Improve reading comprehension with adaptive exercises and explanations.',
       categories: ['text'],
       icon: 'book-open',
-      color: 'text-green-500 bg-green-50 dark:bg-green-900/30',
+      color: 'text-slate_gray bg-slate_gray/10 dark:bg-slate_gray/30',
       locked: true,
     },
     {
@@ -71,7 +71,7 @@ export default function AIToolsPortal() {
         'Expand your academic vocabulary with personalized word lists and quizzes.',
       categories: ['text'],
       icon: 'bookmark',
-      color: 'text-yellow-500 bg-yellow-50 dark:bg-yellow-900/30',
+      color: 'text-peach bg-peach/10 dark:bg-peach/30',
       locked: true,
     },
     {
@@ -81,7 +81,7 @@ export default function AIToolsPortal() {
         'Identify and correct grammatical errors in your writing instantly.',
       categories: ['text'],
       icon: 'check-circle',
-      color: 'text-red-500 bg-red-50 dark:bg-red-900/30',
+      color: 'text-lavender_blush bg-lavender_blush/10 dark:bg-lavender_blush/30',
       locked: true,
     },
     {
@@ -91,7 +91,7 @@ export default function AIToolsPortal() {
         'Practice IELTS listening tests with adjustable difficulty levels.',
       categories: ['audio'],
       icon: 'headphones',
-      color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30',
+      color: 'text-indigo_dye bg-indigo_dye/10 dark:bg-indigo_dye/30',
       locked: true,
     },
   ];
@@ -280,10 +280,10 @@ export default function AIToolsPortal() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-lavender_blush">
       {/* Header */}
       <PageSection title="AI-Powered Learning Tools">
-        <p className="text-muted text-center max-w-2xl mx-auto">
+        <p className="text-slate_gray text-center max-w-2xl mx-auto">
           Unlock premium AI tools to accelerate your IELTS preparation and
           achieve your target score
         </p>
@@ -296,11 +296,11 @@ export default function AIToolsPortal() {
             <input
               type="text"
               placeholder="Search tools..."
-              className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary bg-card text-foreground"
+              className="w-full px-4 py-2 rounded-lg border border-slate_gray focus:outline-none focus:ring-2 focus:ring-indigo_dye bg-lavender_blush text-slate_gray"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <div className="absolute right-3 top-2.5 text-muted">
+            <div className="absolute right-3 top-2.5 text-slate_gray">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
@@ -325,8 +325,8 @@ export default function AIToolsPortal() {
                 onClick={() => setActiveCategory(category.id)}
                 className={`flex items-center px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
                   activeCategory === category.id
-                    ? 'bg-primary text-white'
-                    : 'bg-card text-muted border border-border hover:bg-card-hover'
+                    ? 'bg-indigo_dye text-lavender_blush'
+                    : 'bg-lavender_blush text-slate_gray border border-slate_gray hover:bg-peach/20'
                 }`}
               >
                 <span className="mr-2">
@@ -353,10 +353,10 @@ export default function AIToolsPortal() {
                   <Icon name={tool.icon} className={tool.color.split(' ')[0]} />
                 </div>
 
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+                <h3 className="text-lg font-semibold text-slate_gray mb-2">
                   {tool.name}
                 </h3>
-                <p className="text-muted mb-4">{tool.description}</p>
+                <p className="text-slate_gray mb-4">{tool.description}</p>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {tool.categories.map((catId) => {
@@ -366,7 +366,7 @@ export default function AIToolsPortal() {
                     return catName ? (
                       <span
                         key={catId}
-                        className="text-xs bg-muted-light text-muted dark:bg-muted dark:text-muted-light px-2 py-1 rounded"
+                        className="text-xs bg-peach/20 text-slate_gray dark:bg-peach/30 dark:text-lavender_blush px-2 py-1 rounded"
                       >
                         {catName}
                       </span>
@@ -375,15 +375,15 @@ export default function AIToolsPortal() {
                 </div>
               </div>
 
-              <div className="bg-card-hover px-5 py-3 border-t border-border flex justify-between items-center">
-                <span className="text-sm font-medium text-muted">
+              <div className="bg-peach/20 px-5 py-3 border-t border-slate_gray flex justify-between items-center">
+                <span className="text-sm font-medium text-slate_gray">
                   {tool.locked ? 'Premium Feature' : 'Available'}
                 </span>
                 <button
                   className={`text-sm font-medium px-3 py-1 rounded transition-colors ${
                     tool.locked
-                      ? 'bg-primary text-white hover:bg-primary-dark'
-                      : 'text-primary hover:text-primary-dark'
+                      ? 'bg-indigo_dye text-lavender_blush hover:bg-indigo_dye/80'
+                      : 'text-indigo_dye hover:text-indigo_dye/80'
                   }`}
                 >
                   {tool.locked ? 'Upgrade to Access' : 'Open Tool'}
@@ -399,10 +399,10 @@ export default function AIToolsPortal() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <Container className="max-w-md w-full shadow-lg">
             <div className="text-center mb-6">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-light dark:bg-primary-dark mb-4">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-peach/20 dark:bg-peach/30 mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-primary"
+                  className="h-6 w-6 text-indigo_dye"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -415,20 +415,20 @@ export default function AIToolsPortal() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">
+              <h3 className="text-lg font-medium text-slate_gray mb-2">
                 Upgrade to Pro
               </h3>
-              <p className="text-muted">
+              <p className="text-slate_gray">
                 Unlock all premium AI tools to accelerate your IELTS preparation
               </p>
             </div>
 
             <div className="mb-6">
-              <div className="bg-primary-light dark:bg-primary-dark rounded-lg p-4 mb-4">
+              <div className="bg-peach/20 dark:bg-peach/30 rounded-lg p-4 mb-4">
                 <div className="flex items-start">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-primary mr-2 mt-0.5"
+                    className="h-5 w-5 text-indigo_dye mr-2 mt-0.5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -441,10 +441,10 @@ export default function AIToolsPortal() {
                     />
                   </svg>
                   <div>
-                    <h4 className="font-medium text-foreground">
+                    <h4 className="font-medium text-slate_gray">
                       Pro Features Include:
                     </h4>
-                    <ul className="list-disc list-inside text-muted text-sm mt-1">
+                    <ul className="list-disc list-inside text-slate_gray text-sm mt-1">
                       <li>All AI-powered learning tools</li>
                       <li>Detailed feedback and analysis</li>
                       <li>Progress tracking</li>
@@ -456,20 +456,20 @@ export default function AIToolsPortal() {
 
               <div className="grid grid-cols-2 gap-4">
                 <Container className="p-4">
-                  <h4 className="font-medium text-foreground mb-1">Monthly</h4>
-                  <p className="text-2xl font-bold text-primary">$19.99</p>
-                  <p className="text-muted text-sm">per month</p>
+                  <h4 className="font-medium text-slate_gray mb-1">Monthly</h4>
+                  <p className="text-2xl font-bold text-indigo_dye">$19.99</p>
+                  <p className="text-slate_gray text-sm">per month</p>
                 </Container>
-                <Container className="p-4 border-2 border-primary bg-primary-light dark:bg-primary-dark">
+                <Container className="p-4 border-2 border-indigo_dye bg-peach/20 dark:bg-peach/30">
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-medium text-foreground mb-1">
+                      <h4 className="font-medium text-slate_gray mb-1">
                         Yearly
                       </h4>
-                      <p className="text-2xl font-bold text-primary">$149.99</p>
-                      <p className="text-muted text-sm">per year</p>
+                      <p className="text-2xl font-bold text-indigo_dye">$149.99</p>
+                      <p className="text-slate_gray text-sm">per year</p>
                     </div>
-                    <span className="bg-primary text-white text-xs px-2 py-1 rounded">
+                    <span className="bg-indigo_dye text-lavender_blush text-xs px-2 py-1 rounded">
                       Save 37%
                     </span>
                   </div>
@@ -480,13 +480,13 @@ export default function AIToolsPortal() {
             <div className="flex flex-col space-y-3">
               <button
                 onClick={() => router.push('/pricing')}
-                className="w-full bg-primary hover:bg-primary-dark text-white py-2.5 rounded-lg font-medium transition-colors"
+                className="w-full bg-indigo_dye hover:bg-indigo_dye/80 text-lavender_blush py-2.5 rounded-lg font-medium transition-colors"
               >
                 Upgrade Now
               </button>
               <button
                 onClick={() => setShowUpgradeModal(false)}
-                className="w-full bg-card hover:bg-card-hover text-foreground py-2.5 rounded-lg font-medium border border-border transition-colors"
+                className="w-full bg-lavender_blush hover:bg-peach/20 text-slate_gray py-2.5 rounded-lg font-medium border border-slate_gray transition-colors"
               >
                 Maybe Later
               </button>

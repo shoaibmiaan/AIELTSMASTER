@@ -1,50 +1,40 @@
-// src/components/ErrorBoundary.tsx
 'use client';
 
-import { Component, ErrorInfo, ReactNode } from 'react';
-
-interface ErrorBoundaryProps {
-  children: ReactNode;
-}
+import React, { Component, ErrorInfo } from 'react';
 
 interface ErrorBoundaryState {
   hasError: boolean;
-  error?: Error;
+  error: string | null;
+  info: string | null;
 }
 
-export default class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
-  constructor(props: ErrorBoundaryProps) {
+class ErrorBoundary extends Component<React.PropsWithChildren, ErrorBoundaryState> {
+  constructor(props: React.PropsWithChildren) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: '', info: '' };
   }
 
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error: error.message };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    this.setState({
+      error: error.message,
+      info: info.componentStack,
+    });
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-          <h2 className="text-lg font-medium text-red-800">
-            Something went wrong
-          </h2>
-          <p className="text-red-700 mt-2">
-            {this.state.error?.message || 'An unexpected error occurred'}
-          </p>
-          <button
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-            onClick={() => window.location.reload()}
-          >
-            Reload Page
-          </button>
+        <div className="error-message-container">
+          <h1 className="text-xl text-red-600">Something went wrong.</h1>
+          <details>
+            <summary>Click for details</summary>
+            <p>{this.state.error}</p>
+            <pre>{this.state.info}</pre>
+          </details>
         </div>
       );
     }
@@ -52,3 +42,5 @@ export default class ErrorBoundary extends Component<
     return this.props.children;
   }
 }
+
+export default ErrorBoundary;

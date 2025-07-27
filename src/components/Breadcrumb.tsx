@@ -1,10 +1,9 @@
-// src/components/Breadcrumb.tsx
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 import StudyStreak from '@/components/StudyStreak';
-import { useTheme } from '@/context/ThemeContext';
 
 type BreadcrumbProps = {
   userId: string | null;
@@ -25,15 +24,15 @@ export default function Breadcrumb({ userId }: BreadcrumbProps) {
 
   return (
     <nav
-      className="mb-4 overflow-x-auto whitespace-nowrap px-4 py-2 rounded-md shadow bg-white dark:bg-gray-800"
+      className="mb-4 overflow-x-auto whitespace-nowrap px-4 py-2 rounded-md shadow bg-lavender-blush-500 dark:bg-slate-gray-500"
       aria-label="Breadcrumb"
     >
-      <div className="flex items-center justify-between">
-        <ol className="flex items-center space-x-1 text-sm">
+      <div className="flex items-center justify-between flex-wrap">
+        <ol className="flex items-center space-x-1 text-sm flex-wrap">
           <li>
             <Link
               href="/"
-              className="hover:underline text-orange-400 flex items-center gap-1"
+              className="hover:underline text-indigo-dye-500 flex items-center gap-1"
             >
               <span>🏠</span>
               <span className="font-medium hidden sm:inline">Home</span>
@@ -43,13 +42,13 @@ export default function Breadcrumb({ userId }: BreadcrumbProps) {
             const isLast = i === segments.length - 1;
             return (
               <li key={i} className="flex items-center">
-                <span className="px-1 text-gray-500">/</span>
+                <span className="px-1 text-slate-gray-500">/</span>
                 <Link
                   href={buildPath(i)}
                   className={`capitalize ${
                     isLast
-                      ? 'text-gray-900 dark:text-white font-semibold'
-                      : 'hover:underline text-gray-500 dark:text-gray-400'
+                      ? 'text-slate-gray-500 dark:text-lavender-blush-500 font-semibold'
+                      : 'hover:underline text-slate-gray-500 dark:text-peach-500'
                   }`}
                 >
                   {formatSegment(decodeURIComponent(seg))}
@@ -63,7 +62,7 @@ export default function Breadcrumb({ userId }: BreadcrumbProps) {
           {userId && <StudyStreak userId={userId} />}
           <button
             onClick={toggleTheme}
-            className="p-1 rounded-full bg-gray-200 dark:bg-gray-700"
+            className="p-1 rounded-full bg-peach-500/20 dark:bg-peach-500/30"
             aria-label="Toggle dark mode"
           >
             {theme === 'dark' ? '☀️' : '🌙'}

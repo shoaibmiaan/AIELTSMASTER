@@ -1,3 +1,5 @@
+'use client';
+
 import { useTheme } from '@/context/ThemeContext';
 
 export default function ThemeToggle() {
@@ -10,9 +12,9 @@ export default function ThemeToggle() {
       aria-label="Toggle theme"
     >
       {theme === 'dark' ? (
-        <span className="text-yellow-400 text-lg">☀️</span>
+        <span className="text-peach-400 text-lg">☀️</span>
       ) : (
-        <span className="text-gray-700 text-lg">🌙</span>
+        <span className="text-slate-gray-700 text-lg">🌙</span>
       )}
     </button>
   );

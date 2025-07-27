@@ -4,7 +4,7 @@ import Footer from './Footer';
 import LoadingSpinner from './LoadingSpinner';
 import Breadcrumb from './Breadcrumb';
 import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
+import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 
 export default function Layout({
   children,
@@ -24,16 +24,14 @@ export default function Layout({
   }
 
   return (
-    <div
-      className={`font-sans min-h-screen transition-colors duration-200 flex flex-col ${
-        theme === 'dark' ? 'dark bg-gray-900' : 'bg-gray-50'
-      }`}
-    >
+    <div className={`font-sans min-h-screen transition-colors duration-200 flex flex-col bg-background text-foreground ${theme === 'dark' ? 'dark' : ''}`}>
       <Header user={currentUser} />
       <div className="container mx-auto px-4">
         <Breadcrumb userId={currentUser?.id} />
       </div>
-      <main className="container mx-auto px-4 py-4 flex-grow">{children}</main>
+      <main className="container mx-auto px-4 py-4 flex-grow">
+        {children}
+      </main>
       <Footer />
     </div>
   );

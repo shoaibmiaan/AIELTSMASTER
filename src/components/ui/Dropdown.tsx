@@ -2,6 +2,7 @@
 
 import { ReactNode, useRef, useState } from 'react';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
+import { useTheme } from '@/context/ThemeContext';
 
 type DropdownProps = {
   trigger: ReactNode;
@@ -28,7 +29,7 @@ export const Dropdown = ({
       </div>
       {isOpen && (
         <div
-          className={`absolute mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 dark:ring-gray-700 z-50 ${
+          className={`absolute mt-2 w-48 rounded-md shadow-lg bg-[rgb(var(--color-background))] ring-1 ring-[rgb(var(--color-border))] ring-opacity-5 z-50 ${
             align === 'right' ? 'right-0' : 'left-0'
           }`}
         >

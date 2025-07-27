@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import Layout from '@/components/Layout';
-import useDarkMode from '@/hooks/useDarkMode';
+import { useTheme } from '@/context/ThemeContext';
 
 export default function ResetPassword() {
   const router = useRouter();

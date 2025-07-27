@@ -46,14 +46,14 @@ export default function PageNotFound() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-indigo_dye)]"></div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-800 text-center p-6">
+    <div className="flex items-center justify-center min-h-screen bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)] text-center p-6">
       <motion.div
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
@@ -61,7 +61,7 @@ export default function PageNotFound() {
         className="w-full max-w-md"
       >
         {/* Centered content */}
-        <div className="mb-4 text-5xl font-bold text-amber-500 dark:text-amber-400">
+        <div className="mb-4 text-5xl font-bold text-[var(--color-peach)]">
           4
           <motion.span
             animate={{ rotate: [0, 20, 0, -20, 0] }}
@@ -74,7 +74,7 @@ export default function PageNotFound() {
         </div>
 
         <motion.h2
-          className="text-2xl font-bold mb-4 dark:text-white"
+          className="text-2xl font-bold mb-4 text-[var(--color-slate_gray)] dark:text-[var(--color-lavender_blush)]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -83,16 +83,16 @@ export default function PageNotFound() {
         </motion.h2>
 
         <motion.p
-          className="text-gray-600 dark:text-gray-300 mb-4 text-sm"
+          className="text-[var(--color-slate_gray)] dark:text-[var(--color-peach)] mb-4 text-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <span className="font-semibold text-amber-500 dark:text-amber-400">
+          <span className="font-semibold text-[var(--color-peach)]">
             404 Error:
           </span>
           {/* Display random joke */}
-          <span className="block mt-2 text-lg font-semibold text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-700 dark:text-white p-2 rounded-lg">
+          <span className="block mt-2 text-lg font-semibold text-[var(--color-peach)] bg-[var(--color-peach)/0.2] dark:bg-[var(--color-peach)/0.3] p-2 rounded-lg">
             {joke}
           </span>
         </motion.p>
@@ -105,7 +105,7 @@ export default function PageNotFound() {
         >
           <button
             onClick={() => router.push('/')}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+            className="w-full bg-[var(--color-indigo_dye)] hover:bg-[var(--color-indigo_dye)/0.8] text-[var(--color-lavender_blush)] font-medium py-2 px-4 rounded-lg transition-colors"
           >
             Return to Home Page
           </button>

@@ -33,7 +33,7 @@ export default function Footer() {
       content: (
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-700 rounded-lg flex items-center justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6 text-white"
@@ -50,13 +50,13 @@ export default function Footer() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">IELTSMaster</h1>
-              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+              <h1 className="text-xl font-bold text-foreground">IELTSMaster</h1>
+              <span className="text-xs bg-indigo-500/20 text-indigo-700 px-2 py-1 rounded-full">
                 AI Powered
               </span>
             </div>
           </div>
-          <p className="text-gray-600 text-sm">
+          <p className="text-foreground text-sm">
             Achieve your dream IELTS score with personalized AI feedback and
             expert strategies.
           </p>
@@ -97,34 +97,34 @@ export default function Footer() {
           <div className="flex space-x-3">
             <a
               href="https://www.facebook.com/people/Solvio-Advisors/100085154420700/"
-              className="p-2 bg-gray-100 rounded-full hover:bg-blue-100 transition-colors"
+              className="p-2 bg-lavender-500 rounded-full hover:bg-lavender-700/20 transition-colors"
             >
-              <FacebookIcon className="w-5 h-5 text-blue-600" />
+              <FacebookIcon className="w-5 h-5 text-lavender-700" />
             </a>
             <a
               href="https://www.linkedin.com/company/solvio-advisors/"
-              className="p-2 bg-gray-100 rounded-full hover:bg-blue-100 transition-colors"
+              className="p-2 bg-lavender-500 rounded-full hover:bg-lavender-700/20 transition-colors"
             >
-              <LinkedinIcon className="w-5 h-5 text-blue-600" />
+              <LinkedinIcon className="w-5 h-5 text-lavender-700" />
             </a>
             <a
               href="https://www.instagram.com/solvioadvisors/"
-              className="p-2 bg-gray-100 rounded-full hover:bg-pink-100 transition-colors"
+              className="p-2 bg-lavender-500 rounded-full hover:bg-lavender-700/20 transition-colors"
             >
-              <InstagramIcon className="w-5 h-5 text-pink-600" />
+              <InstagramIcon className="w-5 h-5 text-lavender-700" />
             </a>
             <a
               href="https://twitter.com/solvioadvisors"
-              className="p-2 bg-gray-100 rounded-full hover:bg-blue-100 transition-colors"
+              className="p-2 bg-lavender-500 rounded-full hover:bg-lavender-700/20 transition-colors"
             >
-              <TwitterIcon className="w-5 h-5 text-blue-400" />
+              <TwitterIcon className="w-5 h-5 text-lavender-700" />
             </a>
           </div>
 
           <div className="flex items-start space-x-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-500 mt-0.5"
+              className="h-5 w-5 text-foreground mt-0.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -136,13 +136,13 @@ export default function Footer() {
                 d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-gray-600 text-sm">support@ieltsmaster.com</p>
+            <p className="text-foreground text-sm">support@ieltsmaster.com</p>
           </div>
 
           <div className="flex items-start space-x-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-500 mt-0.5"
+              className="h-5 w-5 text-foreground mt-0.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -154,13 +154,13 @@ export default function Footer() {
                 d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
               />
             </svg>
-            <p className="text-gray-600 text-sm">+1 (555) 123-4567</p>
+            <p className="text-foreground text-sm">+1 (555) 123-4567</p>
           </div>
 
           <div className="flex items-start space-x-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-500 mt-0.5"
+              className="h-5 w-5 text-foreground mt-0.5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -178,7 +178,7 @@ export default function Footer() {
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            <p className="text-gray-600 text-sm">
+            <p className="text-foreground text-sm">
               123 Education St, Learning City
             </p>
           </div>
@@ -188,7 +188,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gray-50 text-gray-600 pt-12 pb-8 font-sans border-t border-gray-200">
+    <footer className="bg-card text-foreground pt-12 pb-8 font-sans border-t border-border">
       <div className="container mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {footerLinks.map((section, index) => (
@@ -197,7 +197,7 @@ export default function Footer() {
                 section.content
               ) : (
                 <>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-lg font-semibold text-foreground">
                     {section.title}
                   </h3>
 
@@ -213,7 +213,7 @@ export default function Footer() {
                                 ? handleProtectedClick(link.path)
                                 : handleNavigation(link.path)
                             }
-                            className="text-gray-600 hover:text-blue-600 text-sm w-full text-left transition-colors"
+                            className="text-foreground hover:text-indigo-500 text-sm w-full text-left transition-colors"
                           >
                             {link.name}
                           </button>
@@ -227,20 +227,20 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="border-t border-gray-200 pt-8">
+        <div className="border-t border-border/20 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 text-sm text-center md:text-left">
+            <p className="text-foreground text-sm text-center md:text-left">
               © {new Date().getFullYear()} IELTSMaster. All rights reserved.
             </p>
 
-            <p className="text-gray-500 text-sm text-center">
+            <p className="text-foreground text-sm text-center">
               This site is not affiliated with the British Council, IDP, or
               Cambridge Assessment English.
             </p>
 
             <div className="flex items-center">
-              <div className="w-3 h-3 rounded-full bg-green-500 mr-2"></div>
-              <span className="text-gray-500 text-sm">Secure Payment</span>
+              <div className="w-3 h-3 rounded-full bg-indigo-700 mr-2"></div>
+              <span className="text-foreground text-sm">Secure Payment</span>
             </div>
           </div>
         </div>

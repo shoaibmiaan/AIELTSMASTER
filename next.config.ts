@@ -2,7 +2,9 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  webpack(config) {
+  // Add Webpack resolution fixes
+  webpack: (config) => {
+    config.resolve.symlinks = true; // Fix module resolution
     config.module.rules.push({
       test: /\.mjs$/,
       include: /node_modules\/pdfjs-dist/,
@@ -19,13 +21,19 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  // Allow builds to pass even with lint/type errors
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Add these new configurations
+  experimental: {
+    webpackBuildWorker: true, // Enable parallel builds
+    optimizePackageImports: ["pdfjs-dist"], // Optimize heavy package
+  },
+  // Remove swcMinify if not needed or set it to true
+  // swcMinify: false, // Disable problematic minifier
 };
 
 export default nextConfig;

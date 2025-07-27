@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
+import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 import toast from 'react-hot-toast';
-import HomeContent from '@/components/home/homeContent';
+import HomeContent from '@/components/home/HomeContent';
 import GuestContent from '@/components/home/GuestContent';
 import LoginModal from '@/components/home/LoginModal';
 import SkeletonLoader from '@/components/common/SkeletonLoader';
@@ -12,7 +12,7 @@ import SkeletonLoader from '@/components/common/SkeletonLoader';
 export default function IELTSMaster() {
   const router = useRouter();
   const { user, login, logout, isLoading: authLoading } = useAuth();
-  const { theme } = useTheme(); // Access the current theme
+  const { theme } = useTheme();
 
   // UI State
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -311,10 +311,10 @@ export default function IELTSMaster() {
   // Loading and error states
   if (authLoading || isPageLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted">Loading your dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--color-indigo_dye)] mx-auto"></div>
+          <p className="mt-4 text-[var(--color-slate_gray)] dark:text-[var(--color-peach)]">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -322,16 +322,16 @@ export default function IELTSMaster() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="bg-card p-6 rounded-lg shadow-lg max-w-md w-full text-center">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold mb-2 text-foreground">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)]">
+        <div className="bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)] p-6 rounded-lg shadow-lg max-w-md w-full text-center border border-[var(--color-slate_gray)/0.2] dark:border-[var(--color-peach)/0.2]">
+          <div className="text-[var(--color-persian_red)] text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold mb-2 text-[var(--color-slate_gray)] dark:text-[var(--color-lavender_blush)]">
             Error Loading Dashboard
           </h2>
-          <p className="text-muted mb-4">{error}</p>
+          <p className="text-[var(--color-slate_gray)] dark:text-[var(--color-peach)] mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-primary hover:bg-primary-dark text-white py-2 px-4 rounded-md transition duration-200"
+            className="bg-[var(--color-indigo_dye)] hover:bg-[var(--color-indigo_dye)/0.8] text-[var(--color-lavender_blush)] py-2 px-4 rounded-md transition-colors"
           >
             Try Again
           </button>
@@ -370,11 +370,11 @@ export default function IELTSMaster() {
         />
       ) : (
         <GuestContent
+          darkMode={theme === 'dark'}
           startMockTest={startMockTest}
           handleProtectedClick={handleProtectedClick}
-          accessPremiumDashboard={accessPremiumDashboard}
-          userProgress={userProgress}
-          isLoading={dataLoading}
+          analyzeWriting={analyzeWriting}
+          startSpeakingPractice={startSpeakingPractice}
         />
       )}
 

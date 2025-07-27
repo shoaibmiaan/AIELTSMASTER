@@ -1,6 +1,6 @@
 'use client';
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 interface UserProgress {
   overall: number;
@@ -18,18 +18,14 @@ export default function TargetBand({
   updateTargetBand,
   darkMode,
 }: TargetBandProps) {
-  // Animate progress rings on mount and when userProgress changes
   useEffect(() => {
     const animateProgressRing = (id: string, percent: number) => {
-      const circle = document.querySelector(
-        `#${id}`
-      ) as SVGCircleElement | null;
+      const circle = document.querySelector(`#${id}`) as SVGCircleElement | null;
       if (circle) {
         const radius = circle.r.baseVal.value;
         const circumference = 2 * Math.PI * radius;
         circle.style.strokeDasharray = `${circumference} ${circumference}`;
         circle.style.strokeDashoffset = circumference.toString();
-
         const offset = circumference - (percent / 100) * circumference;
         circle.style.strokeDashoffset = offset.toString();
       }
@@ -44,110 +40,95 @@ export default function TargetBand({
   );
 
   return (
-    <div className="bg-[rgb(var(--color-background))] dark:bg-[rgb(var(--color-card-dark))] rounded-xl shadow-sm p-6">
-      <h2 className="text-xl font-bold mb-6 dark:text-[rgb(var(--color-foreground-dark))]">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)] rounded-2xl shadow-lg p-6 border border-[var(--color-slate_gray)/0.2] dark:border-[var(--color-peach)/0.2] backdrop-blur-sm"
+    >
+      <h2 className="text-2xl font-bold mb-6 text-[var(--color-slate_gray)] dark:text-[var(--color-lavender_blush)]">
         Target Band Score
       </h2>
       <div className="text-center">
-        <div className="relative w-40 h-40 mx-auto mb-4">
+        <div className="relative w-48 h-48 mx-auto mb-6">
           <svg className="w-full h-full" viewBox="0 0 36 36">
-            {/* Background circle */}
             <circle
               cx="18"
               cy="18"
               r="16"
               fill="none"
-              stroke={
-                darkMode
-                  ? '[rgb(var(--color-border))]'
-                  : '[rgb(var(--color-border))]'
-              }
+              stroke="var(--color-slate_gray)/0.2"
               strokeWidth="2"
-            ></circle>
-
-            {/* Overall progress circle */}
-            <circle
+            />
+            <motion.circle
               id="overall-progress"
-              className="progress-ring__circle transition-all duration-500"
+              className="progress-ring__circle"
               cx="18"
               cy="18"
               r="16"
               fill="none"
-              stroke="[rgb(var(--color-warning))]"
+              stroke="var(--color-peach)"
               strokeWidth="2"
               strokeLinecap="round"
               transform="rotate(-90 18 18)"
-            ></circle>
-
-            {/* Target progress circle */}
-            <circle
+              initial={{ strokeDashoffset: 100 }}
+              animate={{ strokeDashoffset: 100 - ((userProgress.overall / 9) * 100) }}
+              transition={{ duration: 1 }}
+            />
+            <motion.circle
               id="target-progress"
-              className="progress-ring__circle transition-all duration-500"
+              className="progress-ring__circle"
               cx="18"
               cy="18"
               r="16"
               fill="none"
-              stroke="[rgb(var(--color-success))]"
+              stroke="var(--color-persian_red)"
               strokeWidth="2"
               strokeLinecap="round"
               transform="rotate(-90 18 18)"
-            ></circle>
-
-            {/* Current score text */}
+              initial={{ strokeDashoffset: 100 }}
+              animate={{ strokeDashoffset: 100 - ((userProgress.targetBand / 9) * 100) }}
+              transition={{ duration: 1, delay: 0.2 }}
+            />
             <text
               x="18"
               y="18"
               textAnchor="middle"
               fontSize="12"
-              fill={
-                darkMode
-                  ? '[rgb(var(--color-foreground-dark))]'
-                  : '[rgb(var(--color-foreground))]'
-              }
+              fill="var(--color-slate_gray)"
+              className="dark:fill-[var(--color-lavender_blush)] font-bold"
               dy=".3em"
-              fontWeight="bold"
-              className="transition-colors duration-300"
             >
               {userProgress.overall.toFixed(1)}
             </text>
-
-            {/* "Current" label */}
             <text
               x="18"
               y="24"
               textAnchor="middle"
               fontSize="8"
-              fill={
-                darkMode
-                  ? '[rgb(var(--color-muted-dark))]'
-                  : '[rgb(var(--color-muted))]'
-              }
+              fill="var(--color-slate_gray)/0.7"
+              className="dark:fill-[var(--color-peach)/0.7]"
               dy=".3em"
-              className="transition-colors duration-300"
             >
               Current
             </text>
           </svg>
-
-          {/* Target band indicator */}
-          <div className="absolute -bottom-2 left-0 right-0 text-center">
-            <span className="inline-block bg-[rgb(var(--color-success)/0.1)] dark:bg-[rgb(var(--color-success-dark)/0.2)] text-[rgb(var(--color-success))] dark:text-[rgb(var(--color-success-dark))] text-xs px-2 py-1 rounded transition-colors duration-300">
+          <div className="absolute -bottom-4 left-0 right-0 text-center">
+            <span className="inline-block bg-[var(--color-persian_red)/0.1] dark:bg-[var(--color-persian_red)/0.2] text-[var(--color-persian_red)] dark:text-[var(--color-persian_red)] text-xs px-3 py-1 rounded-full font-medium">
               Target: {userProgress.targetBand}
             </span>
           </div>
         </div>
-
-        {/* Target band selection */}
-        <div className="mb-4">
+        <div className="mb-6">
           <label
             htmlFor="targetBand"
-            className="block text-sm font-medium text-[rgb(var(--color-foreground))] dark:text-[rgb(var(--color-foreground-dark))] mb-1 transition-colors duration-300"
+            className="block text-sm font-medium text-[var(--color-slate_gray)] dark:text-[var(--color-lavender_blush)] mb-2"
           >
             Your Target Band
           </label>
           <select
             id="targetBand"
-            className="w-full px-3 py-2 border rounded-md dark:bg-[rgb(var(--color-background-dark))] dark:border-[rgb(var(--color-border-dark))] dark:text-[rgb(var(--color-foreground-dark))] transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-secondary))] dark:focus:ring-[rgb(var(--color-secondary-dark))]"
+            className="w-full px-4 py-2 border border-[var(--color-slate_gray)/0.2] dark:border-[var(--color-peach)/0.2] rounded-lg bg-[var(--color-lavender_blush)] dark:bg-[var(--color-slate_gray)] text-[var(--color-slate_gray)] dark:text-[var(--color-lavender_blush)] focus:ring-2 focus:ring-[var(--color-indigo_dye)] dark:focus:ring-[var(--color-peach)] focus:outline-none transition-all"
             value={userProgress.targetBand}
             onChange={updateTargetBand}
           >
@@ -158,23 +139,22 @@ export default function TargetBand({
             ))}
           </select>
         </div>
-
-        {/* Progress text */}
-        <div className="text-sm text-[rgb(var(--color-muted))] dark:text-[rgb(var(--color-muted-dark))] mb-4 transition-colors duration-300">
+        <div className="text-sm text-[var(--color-slate_gray)/0.7] dark:text-[var(--color-peach)/0.7] mb-6">
           {userProgress.overall >= userProgress.targetBand ? (
-            <span className="text-[rgb(var(--color-success))] dark:text-[rgb(var(--color-success-dark))]">
+            <span className="text-[var(--color-persian_red)] dark:text-[var(--color-persian_red)] font-medium">
               Congratulations! You've reached your target band!
             </span>
           ) : (
             <span>You're {progressPercentage}% to your target band</span>
           )}
         </div>
-
-        {/* Update goal button */}
-        <button className="w-full bg-[rgb(var(--color-secondary))] hover:bg-[rgb(var(--color-secondary-dark))] text-[rgb(var(--color-foreground-light))] py-2 rounded-md font-medium transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--color-secondary))] dark:focus:ring-[rgb(var(--color-secondary-dark))] focus:ring-offset-2 dark:focus:ring-offset-[rgb(var(--color-background-dark))]">
+        <button
+          className="w-full bg-[var(--color-indigo_dye)] hover:bg-[var(--color-indigo_dye)/0.8] text-[var(--color-lavender_blush)] py-2 rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-[var(--color-indigo_dye)] dark:focus:ring-[var(--color-peach)]"
+          onClick={() => updateTargetBand({ target: { value: userProgress.targetBand.toString() } } as any)}
+        >
           Update Goal
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 }

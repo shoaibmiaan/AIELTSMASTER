@@ -18,7 +18,7 @@ export const DropdownItem = ({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-amber-50 dark:hover:bg-gray-700 ${className}`}
+      className={`flex items-center w-full px-4 py-2 text-sm text-[rgb(var(--color-textPrimary))] hover:bg-[rgba(var(--color-hover),0.5)] ${className}`}
     >
       {icon && <span className="mr-2">{icon}</span>}
       {children}

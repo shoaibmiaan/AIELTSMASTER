@@ -3,12 +3,11 @@ import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { ThemeProvider } from '@/context/ThemeContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext'; // Added useAuth import
 import Layout from '@/components/Layout';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import { ThemeProvider } from '@/components/ThemeProvider'; // Removed unused useTheme
 
-// Public routes accessible to everyone (no authentication required)
 const PUBLIC_ROUTES = [
   '/',
   '/login',
@@ -22,7 +21,6 @@ const PUBLIC_ROUTES = [
   '/terms',
 ];
 
-// Protected routes that require authentication
 const PROTECTED_ROUTES = [
   '/profile',
   '/dashboard',
@@ -51,7 +49,6 @@ function RouteGuard({ children }: { children: React.ReactNode }) {
     const isPublic = PUBLIC_ROUTES.some((path) => currentPath.startsWith(path));
 
     if (isProtected && !user) {
-      // Store the current route to redirect back to after login
       sessionStorage.setItem('redirectUrl', currentPath);
       router.push('/login');
       return;
@@ -79,8 +76,6 @@ function RouteGuard({ children }: { children: React.ReactNode }) {
 
 export default function AppWrapper({ Component, pageProps }: AppProps) {
   const router = useRouter();
-
-  // Pages that don't need the layout
   const barePages = [
     '/login',
     '/signup',
@@ -99,9 +94,21 @@ export default function AppWrapper({ Component, pageProps }: AppProps) {
               position="top-right"
               toastOptions={{
                 style: {
-                  background: 'rgb(var(--color-background))',
+                  background: 'rgb(var(--color-card))',
                   color: 'rgb(var(--color-foreground))',
                   border: '1px solid rgb(var(--color-border))',
+                },
+                success: {
+                  iconTheme: {
+                    primary: 'rgb(var(--color-success))',
+                    secondary: 'rgb(var(--color-card))',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: 'rgb(var(--color-error))',
+                    secondary: 'rgb(var(--color-card))',
+                  },
                 },
               }}
             />

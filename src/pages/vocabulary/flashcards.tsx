@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { useTheme } from '../../components/ThemeProvider'; // Updated import path
 
 interface Flashcard {
   id: number;

@@ -6,12 +6,9 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export const Card = ({ children, className = '', ...props }: CardProps) => {
-  const { colors } = useTheme();
-
   return (
     <div
-      className={`rounded-2xl shadow-lg p-6 ${className}`}
-      style={{ backgroundColor: colors.cardBackground }}
+      className={`rounded-2xl shadow-lg p-6 bg-card ${className}`}
       {...props}
     >
       {children}
@@ -24,12 +21,9 @@ export const CardHeader = ({
   className = '',
   ...props
 }: CardProps) => {
-  const { colors } = useTheme();
-
   return (
     <div
-      className={`mb-4 pb-3 border-b ${className}`}
-      style={{ borderColor: colors.border }}
+      className={`mb-4 pb-3 border-b border-border ${className}`}
       {...props}
     >
       {children}
@@ -42,12 +36,9 @@ export const CardContent = ({
   className = '',
   ...props
 }: CardProps) => {
-  const { colors } = useTheme();
-
   return (
     <div
-      className={`${className}`}
-      style={{ color: colors.textSecondary }}
+      className={`text-foreground ${className}`}
       {...props}
     >
       {children}

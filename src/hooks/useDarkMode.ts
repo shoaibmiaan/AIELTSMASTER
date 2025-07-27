@@ -1,26 +1,12 @@
-// hooks/useDarkMode.ts
-import { useState, useEffect } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 
-export default function useDarkMode() {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches;
-    if (savedMode === 'true' || (!savedMode && prefersDark)) {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', String(newMode));
-    document.documentElement.classList.toggle('dark', newMode);
+const useDarkMode = () => {
+  const { theme, toggleTheme } = useTheme();
+  
+  return {
+    isDarkMode: theme === 'dark',
+    toggleDarkMode: toggleTheme,
   };
+};
 
-  return { darkMode, toggleDarkMode };
-}
+export default useDarkMode;

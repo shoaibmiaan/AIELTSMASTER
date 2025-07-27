@@ -1,8 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { DesignSystem } from '@/constants/designSystem'; // Import the design system directly
-
+import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 type ButtonVariant =
   | 'primary'
   | 'secondary'
@@ -11,7 +10,9 @@ type ButtonVariant =
   | 'warning'
   | 'error'
   | 'ghost'
-  | 'link';
+  | 'link'
+  | 'outline'
+  | 'social';
 
 interface ButtonProps {
   children: ReactNode;
@@ -38,24 +39,48 @@ export const Button = ({
   leftIcon,
   rightIcon,
 }: ButtonProps) => {
+  const { theme } = useTheme();
+
   const baseClasses =
-    'inline-flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
+    'inline-flex items-center justify-center font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none';
 
   const sizeClasses = {
-    sm: 'px-2 py-1 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    sm: 'text-sm px-3 py-2 rounded-md',
+    md: 'text-base px-5 py-2.5 rounded-lg',
+    lg: 'text-lg px-6 py-3 rounded-lg',
   };
 
   const variantClasses = {
-    primary: `bg-[${DesignSystem.colors.primary[500]}] text-white hover:bg-[${DesignSystem.colors.primary[600]}] focus:ring-[${DesignSystem.colors.primary[500]}]`,
-    secondary: `bg-[${DesignSystem.colors.secondary.purple[500]}] text-white hover:bg-[${DesignSystem.colors.secondary.purple[600]}] focus:ring-[${DesignSystem.colors.secondary.purple[500]}]`,
-    accent: `bg-[${DesignSystem.colors.primary[500]}] text-white hover:bg-[${DesignSystem.colors.primary[600]}] focus:ring-[${DesignSystem.colors.primary[500]}]`,
-    success: `bg-[${DesignSystem.colors.status.success}] text-white hover:bg-[${DesignSystem.colors.status.success}] focus:ring-[${DesignSystem.colors.status.success}]`,
-    warning: `bg-[${DesignSystem.colors.status.warning}] text-white hover:bg-[${DesignSystem.colors.status.warning}] focus:ring-[${DesignSystem.colors.status.warning}]`,
-    error: `bg-[${DesignSystem.colors.status.error}] text-white hover:bg-[${DesignSystem.colors.status.error}] focus:ring-[${DesignSystem.colors.status.error}]`,
-    ghost: `bg-transparent text-[${DesignSystem.colors.gray[700]}] hover:bg-[${DesignSystem.colors.gray[100]}] dark:text-[${DesignSystem.colors.gray[300]}] dark:hover:bg-[${DesignSystem.colors.gray[700]}]`,
-    link: `text-[${DesignSystem.colors.primary[500]}] dark:text-[${DesignSystem.colors.primary[400]}] hover:text-[${DesignSystem.colors.primary[600]}] dark:hover:text-[${DesignSystem.colors.primary[300]}] focus:ring-[${DesignSystem.colors.primary[500]}] underline-offset-4 hover:underline bg-transparent`,
+    primary: `bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg
+              focus:ring-primary/50 transition-all duration-200 transform hover:-translate-y-0.5`,
+
+    secondary: `bg-secondary text-white hover:bg-secondary/90 shadow-md
+                focus:ring-secondary/50 transition-all duration-200`,
+
+    accent: `bg-accent text-white hover:bg-accent/90 shadow-md
+             focus:ring-accent/50 transition-all duration-200`,
+
+    success: `bg-success text-white hover:bg-success/90 shadow-md
+              focus:ring-success/50 transition-all duration-200`,
+
+    warning: `bg-warning text-white hover:bg-warning/90 shadow-md
+              focus:ring-warning/50 transition-all duration-200`,
+
+    error: `bg-error text-white hover:bg-error/90 shadow-md
+            focus:ring-error/50 transition-all duration-200`,
+
+    ghost: `bg-transparent text-foreground border border-transparent
+            hover:bg-background/50 focus:ring-background/20`,
+
+    link: `text-primary underline-offset-4 hover:underline
+           focus:ring-primary/20 bg-transparent`,
+
+    outline: `bg-transparent text-foreground border-2 border-primary
+              hover:bg-primary/10 focus:ring-primary/30`,
+
+    social: `bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300
+             border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700
+             focus:ring-gray-300/30 shadow-sm transition-all duration-150`
   };
 
   const widthClass = fullWidth ? 'w-full' : '';
