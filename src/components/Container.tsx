@@ -1,6 +1,6 @@
 'use client';
 import { ReactNode } from 'react';
-import { useTheme } from '@/context/ThemeContext';
+import { useTheme } from '@/components/ThemeProvider';  // Correct import for `useTheme`
 
 export default function Container({
   children,
@@ -14,7 +14,7 @@ export default function Container({
   onClick?: () => void;
   hoverable?: boolean;
 }) {
-  const { theme } = useTheme();
+  const { theme } = useTheme();  // Fetching the theme from the context
 
   return (
     <div
@@ -23,11 +23,11 @@ export default function Container({
       className={`
         relative
         bg-card
-        border border-border
+        border ${theme === 'dark' ? 'border-slate-gray-600' : 'border-slate-gray-300'}
         rounded-xl
         overflow-hidden
         transition-all duration-300
-        ${hoverable && 'hover:shadow-lg hover:-translate-y-1 hover:border-indigo-dye-500/30 dark:hover:border-indigo-dye-700/30'}
+        ${hoverable && 'hover:shadow-lg hover:-translate-y-1 hover:border-indigo-dye/30 dark:hover:border-indigo-dye/30'}
         group
         ${className}
       `}
@@ -47,8 +47,8 @@ export default function Container({
 
       {/* Inner padding with subtle top accent */}
       <div className="relative">
-        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-dye-500 to-persian-red-500"></div>
-        
+        <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-dye to-persian-red"></div>
+
         <div className="pt-5 pb-4 px-5">
           {children}
         </div>

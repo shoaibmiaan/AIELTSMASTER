@@ -2,7 +2,6 @@
 import { ReactNode } from 'react';
 import { useTheme } from '@/context/ThemeContext';
 import Container from '@/components/Container';
-import Icon from '@/components/Icon';
 
 export default function PageSection({
   children,
@@ -29,7 +28,9 @@ export default function PageSection({
         {/* Animated header with gradient underline */}
         <div className="text-center mb-16">
           <div className="relative inline-block">
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-slate_gray transition-all duration-700">
+            <h2 className={`text-4xl md:text-5xl font-bold tracking-tight ${
+              theme === 'dark' ? 'text-lavender-blush' : 'text-slate-gray'
+            } transition-all duration-700`}>
               {title}
             </h2>
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-indigo_dye to-transparent opacity-80"></div>
@@ -52,7 +53,11 @@ export default function PageSection({
 
         {/* Content container with subtle border animation */}
         <Container className="relative p-0 overflow-hidden">
-          <div className="relative bg-lavender_blush/5 backdrop-blur-sm rounded-3xl border border-slate_gray p-8 shadow-xl overflow-hidden">
+          <div className={`relative ${
+            theme === 'dark' ? 'bg-slate-gray-800' : 'bg-lavender-blush'
+          } backdrop-blur-sm rounded-3xl border ${
+            theme === 'dark' ? 'border-slate-gray-600' : 'border-slate-gray-300'
+          } p-8 shadow-xl overflow-hidden`}>
             {/* Shine effect on hover */}
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute -inset-24 opacity-0 group-hover:opacity-100 transition-all duration-700">

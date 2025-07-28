@@ -86,7 +86,7 @@ export default function AppWrapper({ Component, pageProps }: AppProps) {
   const useLayout = !barePages.includes(router.pathname);
 
   return (
-    <ThemeProvider>
+    <ThemeProvider> {/* Now using the component-based ThemeProvider */}
       <AuthProvider>
         <ErrorBoundary>
           <RouteGuard>

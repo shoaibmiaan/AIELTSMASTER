@@ -4,7 +4,7 @@ import Footer from './Footer';
 import LoadingSpinner from './LoadingSpinner';
 import Breadcrumb from './Breadcrumb';
 import { useAuth } from '@/context/AuthContext';
-import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 export default function Layout({
   children,
@@ -16,7 +16,6 @@ export default function Layout({
   isLoading?: boolean;
 }) {
   const { user: authUser } = useAuth();
-  const { theme } = useTheme();
   const currentUser = user || authUser;
 
   if (isLoading) {
@@ -24,15 +23,17 @@ export default function Layout({
   }
 
   return (
-    <div className={`font-sans min-h-screen transition-colors duration-200 flex flex-col bg-background text-foreground ${theme === 'dark' ? 'dark' : ''}`}>
-      <Header user={currentUser} />
-      <div className="container mx-auto px-4">
-        <Breadcrumb userId={currentUser?.id} />
+    <ThemeProvider>
+      <div className={`font-sans min-h-screen transition-colors duration-200 flex flex-col bg-background text-foreground`}>
+        <Header user={currentUser} />
+        <div className="container mx-auto px-4">
+          <Breadcrumb userId={currentUser?.id} />
+        </div>
+        <main className="container mx-auto px-4 py-4 flex-grow">
+          {children}
+        </main>
+        <Footer />
       </div>
-      <main className="container mx-auto px-4 py-4 flex-grow">
-        {children}
-      </main>
-      <Footer />
-    </div>
+    </ThemeProvider>
   );
 }

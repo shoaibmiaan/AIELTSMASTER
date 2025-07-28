@@ -2,7 +2,6 @@
 
 /* Color Definitions */
 :root {
-  /* New color variables */
   --color-black-100: 0, 0, 0;
   --color-black-200: 0, 0, 0;
   --color-black-300: 0, 0, 0;
@@ -54,7 +53,7 @@
   --color-dark-spring-green-900: 1, 23, 15;
 
   /* Base Variables */
-  --color-primary: var(--color-dark-spring-green-500);
+  --color-primary: var(--color-dark spring-green-500);
   --color-accent: var(--color-light-blue-500);
   --color-background: var(--color-ghost-white-500);
   --color-foreground: var(--color-paynes-gray-900);
@@ -66,7 +65,7 @@
 /* Dark Theme */
 .dark {
   --color-primary: var(--color-light-blue-300);
-  --color-accent: var(--color-dark-spring-green-400);
+  --color-accent: var(--color-dark spring-green-400);
   --color-background: var(--color-paynes-gray-900);
   --color-foreground: var(--color-ghost-white-100);
   --color-card: var(--color-paynes-gray-800);
@@ -97,41 +96,41 @@ input::placeholder, textarea::placeholder {
   color: rgb(var(--color-paynes-gray-400));
 }
 
-/* Button Styling - Borderless & Elegant */
+/* Button Styling - Text Only */
 button {
   font-family: 'Roboto', sans-serif;
-  background-color: transparent;
-  color: rgb(var(--color-primary));
-  padding: 10px 20px;
+  background: none;
   border: none;
-  border-radius: 8px;
+  color: rgb(var(--color-primary));
+  padding: 6px 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  text-transform: uppercase;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  background-color: rgba(var(--color-primary), 0.1);
+  transition: all 0.2s ease;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.03em;
+  font-size: 1rem;
 }
 
-/* Button Hover and Focus - Soft Shadow & Background Change */
+/* Button Hover and Focus - Underline and Color Change */
 button:hover {
-  background-color: rgba(var(--color-primary), 0.15);
-  color: rgb(var(--color-foreground));
-  box-shadow: 0 2px 8px rgba(var(--color-primary), 0.2);
+  color: rgb(var(--color-accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 button:focus {
   outline: none;
-  border-color: rgb(var(--color-accent));
-  box-shadow: 0 0 6px rgba(var(--color-accent), 0.3);
+  color: rgb(var(--color-accent));
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Button Disabled */
 button:disabled {
-  background-color: rgb(var(--color-paynes-gray-300));
   color: rgb(var(--color-paynes-gray-600));
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.7;
+  text-decoration: none;
 }
 
 /* Body Styles */
@@ -171,13 +170,14 @@ html {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+
 .flashcard .front {
   background-color: rgb(var(--color-light-blue-500));
   color: rgb(var(--color-paynes-gray-900));
 }
 
 .flashcard .back {
-  background-color: rgb(var(--color-dark-spring-green-500));
+  background-color: rgb(var(--color-dark spring-green-500));
   color: rgb(var(--color-ghost-white-100));
   transform: rotateY(180deg);
 }

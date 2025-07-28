@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabaseClient';
@@ -21,37 +21,17 @@ interface WritingTask {
 
 export default function WritingAssessmentRoom() {
   const router = useRouter();
-  const { user, profile, isLoading: authLoading } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const { user } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [currentPage, setCurrentPage] = useState('');
   const [tasks, setTasks] = useState<WritingTask[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<
-    'all' | 'completed' | 'incomplete'
-  >('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'completed' | 'incomplete'>('all');
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Initialize dark mode
-  useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia(
-      '(prefers-color-scheme: dark)'
-    ).matches;
-    const initialMode = savedMode === 'true' || (!savedMode && prefersDark);
-    setDarkMode(initialMode);
-    document.documentElement.classList.toggle('dark', initialMode);
-  }, []);
-
-  // Fetch writing tasks from Supabase
   useEffect(() => {
     const fetchTasks = async () => {
       try {
         setLoading(true);
-
         const { data: tasksData, error } = await supabase
           .from('writing_tasks')
           .select('*')
@@ -73,7 +53,6 @@ export default function WritingAssessmentRoom() {
               best_score: progress?.score,
             };
           });
-
           setTasks(tasksWithProgress);
         } else {
           setTasks(
@@ -94,30 +73,6 @@ export default function WritingAssessmentRoom() {
     fetchTasks();
   }, [user]);
 
-  // Toggle dark mode
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', String(newMode));
-    document.documentElement.classList.toggle('dark', newMode);
-  };
-
-  // Handle navigation
-  const handleNavigation = (route: string) => {
-    if (route.startsWith('http')) {
-      window.open(route, '_blank');
-      return;
-    }
-
-    if (route === '/logout') {
-      supabase.auth.signOut();
-      return;
-    }
-
-    router.push(route);
-  };
-
-  // Handle protected routes
   const handleProtectedClick = (route: string) => {
     setCurrentPage(route);
     if (!user) {
@@ -128,28 +83,17 @@ export default function WritingAssessmentRoom() {
     }
   };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setDropdownOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // Start writing task
   const startTask = (taskId: string) => {
-    handleProtectedClick(`/assessmentRoom/writing/${taskId}`);
+    const route = `/assessmentRoom/writing/${taskId}`;
+    if (user) {
+      router.push(route);
+    } else {
+      setCurrentPage(route);
+      sessionStorage.setItem('redirectUrl', route);
+      setShowLoginModal(true);
+    }
   };
 
-  // Filter tasks based on active tab
   const filteredTasks = tasks.filter((task) => {
     if (!user) return activeTab === 'all' || activeTab === 'incomplete';
     return (
@@ -159,51 +103,44 @@ export default function WritingAssessmentRoom() {
     );
   });
 
-  // Get difficulty color classes
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+        return 'bg-green-100 text-green-800';
       case 'Medium':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+        return 'bg-yellow-100 text-yellow-800';
       case 'Hard':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+        return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
-    <div
-      className={`font-sans bg-gray-50 dark:bg-gray-900 transition-colors duration-300 min-h-screen`}
-    >
+    <div className="font-sans bg-background text-foreground min-h-screen">
       <Head>
-        <title>Writing Assessment Room - IELTS Master</title>
-        <meta
-          name="description"
-          content="Practice IELTS writing tasks with authentic prompts and detailed feedback"
-        />
+        <title>Writing Practice - IELTS Master</title>
+        <meta name="description" content="Practice IELTS writing tasks with authentic prompts" />
       </Head>
 
-      <main className="container mx-auto px-4 sm:px-6 py-8">
-        <section className="mb-12">
+      <main className="container mx-auto px-4 sm:px-6 py-10">
+        <section className="mb-16">
           <div className="text-center max-w-3xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-4 dark:text-white">
-              Writing Assessment Room
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              Writing Practice
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-6">
-              Practice with authentic IELTS writing tasks and receive detailed
-              feedback
+            <p className="text-xl text-foreground/80 mb-8">
+              Develop your writing skills with authentic IELTS tasks and feedback
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <button
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-md font-medium transition-colors"
-                onClick={() => startTask('new')}
+                className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md font-medium transition-colors duration-200 flex items-center"
+                onClick={() => handleProtectedClick('/assessmentRoom/writing/new')}
               >
                 <i className="fas fa-pen mr-2"></i> Start New Task
               </button>
               <button
-                className="bg-white hover:bg-gray-50 text-green-600 border border-green-600 px-6 py-3 rounded-md font-medium transition-colors dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-green-400"
+                className="bg-card hover:bg-card-hover text-primary border border-primary px-6 py-3 rounded-md font-medium transition-colors duration-200 flex items-center"
                 onClick={() => router.push('/strategies/writing')}
               >
                 <i className="fas fa-lightbulb mr-2"></i> Writing Strategies
@@ -212,14 +149,14 @@ export default function WritingAssessmentRoom() {
           </div>
         </section>
 
-        <section className="mb-12">
+        <section className="mb-16">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h2 className="text-2xl font-bold dark:text-white">
-              Available Writing Tasks
-            </h2>
+            <h2 className="text-3xl font-bold text-foreground">Available Tasks</h2>
             <div className="flex flex-wrap gap-2">
               <button
-                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'all' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
+                  activeTab === 'all' ? 'bg-primary text-white' : 'bg-card-hover text-foreground/80 hover:bg-accent'
+                }`}
                 onClick={() => setActiveTab('all')}
               >
                 All Tasks
@@ -227,13 +164,17 @@ export default function WritingAssessmentRoom() {
               {user && (
                 <>
                   <button
-                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'completed' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
+                      activeTab === 'completed' ? 'bg-primary text-white' : 'bg-card-hover text-foreground/80 hover:bg-accent'
+                    }`}
                     onClick={() => setActiveTab('completed')}
                   >
                     Completed
                   </button>
                   <button
-                    className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'incomplete' ? 'bg-green-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'}`}
+                    className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
+                      activeTab === 'incomplete' ? 'bg-primary text-white' : 'bg-card-hover text-foreground/80 hover:bg-accent'
+                    }`}
                     onClick={() => setActiveTab('incomplete')}
                   >
                     Incomplete
@@ -245,36 +186,34 @@ export default function WritingAssessmentRoom() {
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : filteredTasks.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-center">
-              <i className="fas fa-pen text-4xl text-gray-400 dark:text-gray-600 mb-4"></i>
-              <h3 className="text-xl font-medium dark:text-white">
-                No tasks found
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <div className="bg-card border border-border rounded-xl shadow-sm p-8 text-center">
+              <i className="fas fa-pen text-4xl text-foreground/30 mb-4"></i>
+              <h3 className="text-xl font-semibold text-foreground">No tasks found</h3>
+              <p className="text-foreground/60 mb-4">
                 {activeTab === 'all'
                   ? 'There are currently no writing tasks available.'
                   : 'No tasks match your current filters.'}
               </p>
               <button
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
-                onClick={() => startTask('new')}
+                className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md font-medium"
+                onClick={() => handleProtectedClick('/assessmentRoom/writing/new')}
               >
-                Start New Task
+                <i className="fas fa-pen mr-2"></i> Start New Task
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all"
+                  className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
                 >
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-bold dark:text-white">
+                      <h3 className="text-lg font-semibold text-foreground">
                         {task.title}
                       </h3>
                       <span
@@ -283,10 +222,10 @@ export default function WritingAssessmentRoom() {
                         {task.difficulty}
                       </span>
                     </div>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-4 line-clamp-2">
+                    <p className="text-foreground/80 text-sm mb-4 line-clamp-2">
                       {task.description}
                     </p>
-                    <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    <div className="flex justify-between text-sm text-foreground/60 mb-4">
                       <span>
                         <i className="far fa-clock mr-1"></i>
                         {task.time_limit_minutes} mins
@@ -299,16 +238,16 @@ export default function WritingAssessmentRoom() {
                     {task.completed && task.best_score !== undefined && (
                       <div className="mb-4">
                         <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium dark:text-white">
+                          <span className="font-medium text-foreground">
                             Your Best Score:
                           </span>
-                          <span className="font-bold dark:text-white">
+                          <span className="font-bold text-foreground">
                             {task.best_score}/9
                           </span>
                         </div>
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                        <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className="bg-green-500 h-2 rounded-full"
+                            className="bg-primary h-2 rounded-full"
                             style={{ width: `${(task.best_score / 9) * 100}%` }}
                           ></div>
                         </div>
@@ -317,20 +256,16 @@ export default function WritingAssessmentRoom() {
                   </div>
                   <button
                     onClick={() => startTask(task.id)}
-                    className={`w-full py-3 px-4 font-medium transition-colors ${
+                    className={`w-full py-3 px-4 font-medium transition-colors duration-200 ${
                       task.completed
-                        ? 'bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-200 hover:bg-green-100 dark:hover:bg-green-900/50'
-                        : 'bg-green-600 text-white hover:bg-green-700'
+                        ? 'bg-card-hover text-primary hover:bg-accent'
+                        : 'bg-primary text-white hover:bg-primary/90'
                     }`}
                   >
                     {task.completed ? (
-                      <>
-                        <i className="fas fa-redo mr-2"></i> Retake Task
-                      </>
+                      <><i className="fas fa-redo mr-2"></i> Retake Task</>
                     ) : (
-                      <>
-                        <i className="fas fa-play mr-2"></i> Start Task
-                      </>
+                      <><i className="fas fa-play mr-2"></i> Start Task</>
                     )}
                   </button>
                 </div>
@@ -339,100 +274,72 @@ export default function WritingAssessmentRoom() {
           )}
         </section>
 
-        <section className="bg-gray-50 dark:bg-gray-800 rounded-xl p-6 sm:p-8 mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">
-            Writing Practice Tips
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mt-1 mr-4">
-                  <i className="fas fa-pen text-green-600 dark:text-green-400"></i>
+        <section className="bg-card/50 p-6 rounded-xl border border-border">
+          <h2 className="text-2xl font-bold mb-6 text-center text-foreground">Writing Tips</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mt-1">
+                  <i className="fas fa-pen text-primary"></i>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 dark:text-white">
-                    Essay Structure
-                  </h3>
-                  <ul className="list-disc pl-5 space-y-1 text-gray-600 dark:text-gray-300">
-                    <li>
-                      Plan your essay with a clear introduction, body, and
-                      conclusion
-                    </li>
+                  <h3 className="text-lg font-semibold mb-2 text-foreground">Essay Structure</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-foreground/80 text-sm">
+                    <li>Plan with clear introduction, body, and conclusion</li>
                     <li>Use topic sentences to start each paragraph</li>
-                    <li>
-                      Support arguments with relevant examples or evidence
-                    </li>
+                    <li>Support arguments with relevant examples</li>
                   </ul>
                 </div>
               </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mt-1 mr-4">
-                  <i className="fas fa-clock text-green-600 dark:text-green-400"></i>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mt-1">
+                  <i className="fas fa-clock text-primary"></i>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 dark:text-white">
-                    Time Management
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
+                  <h3 className="text-lg font-semibold mb-2 text-foreground">Time Management</h3>
+                  <p className="text-foreground/80 text-sm">
                     Allocate 20 minutes for Task 1 and 40 minutes for Task 2.
                     Spend 5-7 minutes planning before writing.
                   </p>
                 </div>
               </div>
             </div>
-            <div className="space-y-6">
-              <div className="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-5">
-                <h3 className="text-lg font-semibold mb-3 dark:text-white">
-                  Recommended Practice Schedule
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                      Beginner (5.0 target)
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      3-4 hours weekly: Focus on basic essay structure and
-                      vocabulary
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                      Intermediate (6.5 target)
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      5-6 hours weekly: Practice coherence and varied sentence
-                      structures
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 dark:text-white mb-1">
-                      Advanced (7.5+ target)
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      7-8 hours weekly: Focus on advanced vocabulary and complex
-                      arguments
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded">
-                <div className="flex">
-                  <div className="flex-shrink-0 text-green-500 dark:text-green-400 mt-1">
-                    <i className="fas fa-exclamation-circle"></i>
-                  </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-green-700 dark:text-green-300">
-                      <span className="font-medium">Pro Tip:</span> Review
-                      sample high-scoring essays to understand examiner
-                      expectations.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
       </main>
+
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-card border border-border p-6 rounded-lg max-w-md w-full">
+            <h3 className="text-xl font-bold mb-3 text-foreground text-center">Sign In Required</h3>
+            <p className="text-foreground/80 mb-4 text-center text-sm">
+              Please sign in to access this practice task
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setShowLoginModal(false);
+                  router.push('/signup');
+                }}
+                className="bg-card hover:bg-card-hover text-primary border border-primary py-2 rounded-md font-medium text-sm"
+              >
+                Create Free Account
+              </button>
+              <button
+                onClick={() => {
+                  setShowLoginModal(false);
+                  router.push('/login');
+                }}
+                className="bg-primary hover:bg-primary/90 text-white py-2 rounded-md font-medium text-sm"
+              >
+                Sign In
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
