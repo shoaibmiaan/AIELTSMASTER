@@ -53,7 +53,7 @@
   --color-dark-spring-green-900: 1, 23, 15;
 
   /* Base Variables */
-  --color-primary: var(--color-dark spring-green-500);
+  --color-primary: var(--color-dark-spring-green-500);
   --color-accent: var(--color-light-blue-500);
   --color-background: var(--color-ghost-white-500);
   --color-foreground: var(--color-paynes-gray-900);
@@ -65,7 +65,7 @@
 /* Dark Theme */
 .dark {
   --color-primary: var(--color-light-blue-300);
-  --color-accent: var(--color-dark spring-green-400);
+  --color-accent: var(--color-dark-spring-green-400);
   --color-background: var(--color-paynes-gray-900);
   --color-foreground: var(--color-ghost-white-100);
   --color-card: var(--color-paynes-gray-800);
@@ -177,7 +177,7 @@ html {
 }
 
 .flashcard .back {
-  background-color: rgb(var(--color-dark spring-green-500));
+  background-color: rgb(var(--color-dark-spring-green-500));
   color: rgb(var(--color-ghost-white-100));
   transform: rotateY(180deg);
 }

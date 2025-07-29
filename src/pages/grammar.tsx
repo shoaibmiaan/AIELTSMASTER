@@ -1,20 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
 import toast from 'react-hot-toast';
-import LoginModal from '@/components/home/LoginModal';
-import Container from '@/components/Container';
-import PageSection from '@/components/PageSection';
+import { useAuth } from '@/context/AuthContext'; // Keep this import
+import { useTheme } from '@/components/ThemeProvider'; // Keep this import
 
 export default function IELTSCoursePage() {
   const router = useRouter();
   const { courseId } = router.query;
-  const { user } = useAuth();
-  const { theme } = useTheme();
+  const { user } = useAuth(); // from context
+  const { theme } = useTheme(); // from context
 
   // UI State
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -79,13 +75,14 @@ export default function IELTSCoursePage() {
       router.push(`/courses/${courseId}/lessons/${lessonId}`);
     } else if (lesson?.locked) {
       toast.error('Please sign in to access this lesson');
-      setShowLoginModal(true);
+      // You can choose to display a custom message or perform any other action here
     }
   };
 
   const enrollCourse = () => {
     if (!user) {
-      setShowLoginModal(true);
+      // You can implement any other action when a user is not logged in
+      toast.error('Please sign in to enroll');
     } else {
       toast.success('Successfully enrolled in course!');
       setLessons(lessons.map((l) => ({ ...l, locked: false })));
@@ -94,13 +91,10 @@ export default function IELTSCoursePage() {
 
   return (
     <div className="min-h-screen">
-      <Head>
-        <title>{course.title} | IELTS Master</title>
-      </Head>
-
       <main className="container mx-auto px-4 py-8">
         {/* Course Header */}
-        <PageSection title={course.title}>
+        <div className="mb-6">
+          <h1 className="text-3xl font-semibold">{course.title}</h1>
           <div className="flex items-center gap-2 mb-4">
             <span className="px-3 py-1 bg-primary-light dark:bg-primary-dark text-primary rounded-full text-sm font-medium">
               Grammar Course
@@ -161,7 +155,7 @@ export default function IELTSCoursePage() {
                   Enroll for Free
                 </button>
                 <button
-                  onClick={() => setShowLoginModal(true)}
+                  onClick={() => toast.error('Please sign in to preview the course')}
                   className="bg-card hover:bg-card-hover text-foreground px-6 py-2 rounded-lg border border-border"
                 >
                   Preview Course
@@ -169,11 +163,12 @@ export default function IELTSCoursePage() {
               </>
             )}
           </div>
-        </PageSection>
+        </div>
 
         {/* Course Content */}
-        <PageSection title="Course Content">
-          <Container className="overflow-hidden">
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Course Content</h2>
+          <div className="overflow-hidden">
             {lessons.map((lesson, index) => (
               <div
                 key={lesson.id}
@@ -241,20 +236,9 @@ export default function IELTSCoursePage() {
                 </div>
               </div>
             ))}
-          </Container>
-        </PageSection>
+          </div>
+        </div>
       </main>
-
-      <LoginModal
-        showLoginModal={showLoginModal}
-        setShowLoginModal={setShowLoginModal}
-        email={''}
-        setEmail={() => {}}
-        password={''}
-        setPassword={() => {}}
-        handleLogin={() => {}}
-        handleFreePlan={() => {}}
-      />
     </div>
   );
 }

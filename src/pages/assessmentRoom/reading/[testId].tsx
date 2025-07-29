@@ -1,7 +1,8 @@
+// [testId].tsx
 'use client';
 
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import FocusedLayout from '@/layouts/FocusedLayout';
 import ReadingPassagePane from '@/components/reading/ReadingPassagePane';
@@ -39,6 +40,7 @@ interface ReadingTest {
 export default function ReadingTestPage() {
   const router = useRouter();
   const { testId } = router.query;
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const [test, setTest] = useState<ReadingTest | null>(null);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
@@ -48,25 +50,31 @@ export default function ReadingTestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showReview, setShowReview] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [fullscreenRequested, setFullscreenRequested] = useState(false);
+  const [testStarted, setTestStarted] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const goFullScreen = () => {
+  const goFullScreen = useCallback(() => {
     const el = document.documentElement;
-    if (el.requestFullscreen) el.requestFullscreen();
-    setFullscreenRequested(true);
-  };
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(err => {
+        console.error('Failed to enter fullscreen:', err);
+      });
+    }
+  }, []);
 
+  // Load test data
   useEffect(() => {
-    const loadTest = async () => {
-      if (!testId) return;
-      setLoading(true);
+    if (!testId) return;
+    setLoading(true);
+    setLoadError(null);
 
+    const loadTest = async () => {
       try {
         const { data, error } = await supabase
           .from('reading_papers')
-          .select(
-            `
-            id, title, created_at,
+          .select(`
+            id,
+            title,
             reading_passages (
               id,
               passage_number,
@@ -83,8 +91,7 @@ export default function ReadingTestPage() {
                 instruction
               )
             )
-          `
-          )
+          `)
           .eq('id', testId)
           .single();
 
@@ -92,130 +99,194 @@ export default function ReadingTestPage() {
         if (!data) throw new Error('Test not found');
 
         setTest(data as ReadingTest);
-
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        if (user) {
-          logStudyActivity(user.id, 'Started Reading Test');
-        }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error loading test:', error);
+        setLoadError(error.message || 'Failed to load test');
       } finally {
         setLoading(false);
       }
     };
 
-    if (testId) {
-      loadTest();
-    }
+    loadTest();
   }, [testId]);
 
+  // Timer logic
   useEffect(() => {
-    if (timeLeft <= 0) {
-      setShowReview(true);
-      return;
-    }
-    const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
+    if (!testStarted || timeLeft <= 0) return;
+
+    const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [testStarted, timeLeft]);
 
-  const handleAnswer = (qnId: string, value: string | string[]) => {
-    setAnswers((a) => ({ ...a, [qnId]: value }));
-  };
+  const handleAnswer = useCallback((qnId: string, value: string | string[]) => {
+    setAnswers(a => ({ ...a, [qnId]: value }));
+  }, []);
 
-  const handleFlag = (qnId: string) => {
-    setFlags((f) => ({ ...f, [qnId]: !f[qnId] }));
-  };
+  const handleFlag = useCallback((qnId: string) => {
+    setFlags(f => ({ ...f, [qnId]: !f[qnId] }));
+  }, []);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setSubmitting(true);
     setSubmitError(null);
 
     try {
-      if (!test) {
-        throw new Error('Test data not loaded. Please try again.');
-      }
+      if (!test) throw new Error('Test data not loaded');
 
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError || !user) {
-        throw new Error('You must be signed in to submit.');
-      }
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error('Sign in required to submit');
 
       const { error } = await supabase.from('reading_attempts').insert({
         user_id: user.id,
         test_id: test.id,
         answers,
         flags,
-        raw_score: null,
-        band_score: null,
         submitted_at: new Date().toISOString(),
       });
 
       if (error) throw error;
 
       logStudyActivity(user.id, 'Submitted Reading Test');
-      // Update the redirect URL to the correct path
-      router.push(`/assessmentRoom/reading/result?testId=${test.id}`); // Fixed URL
+      router.push(`/assessmentRoom/reading/result?testId=${test.id}`);
     } catch (error: any) {
-      setSubmitError(error.message || 'Failed to submit. Please try again.');
+      setSubmitError(error.message || 'Failed to submit');
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [test, answers, flags, router]);
 
-  const mappedPassages =
-    test?.reading_passages?.map((p) => ({
+  const mappedPassages = useMemo(() =>
+    test?.reading_passages?.map(p => ({
       ...p,
-      question_groups: [
-        {
-          group_number: 1,
-          instruction: p.section_instruction || 'General Questions',
-          questions: (p.reading_questions || []).map((q) => ({
-            ...q,
-            id: q.id,
-            question_number: q.question_number,
-            question_type: q.question_type,
-            text: q.text,
-            options: q.options,
-          })),
-        },
-      ],
-    })) || [];
+      question_groups: [{
+        group_number: 1,
+        instruction: p.section_instruction || 'General Questions',
+        questions: (p.reading_questions || []).map(q => ({
+          ...q,
+          id: q.id,
+          question_number: q.question_number,
+          question_type: q.question_type,
+          text: q.text,
+          options: q.options,
+        })),
+      }],
+    })) || [], [test]);
 
-  const allQuestions = mappedPassages
-    .flatMap((p) => p.question_groups.flatMap((g) => g.questions))
-    .sort((a, b) => (a.question_number ?? 0) - (b.question_number ?? 0));
+  const allQuestions = useMemo(() =>
+    mappedPassages
+      .flatMap(p => p.question_groups.flatMap(g => g.questions))
+      .sort((a, b) => (a.question_number ?? 0) - (b.question_number ?? 0)),
+    [mappedPassages]
+  );
 
-  const handleJump = (qnId: string) => {
-    document
-      .getElementById(`question-${qnId}`)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
-  const handleStartTest = () => {
-    if (!fullscreenRequested) {
-      goFullScreen();
+  const handleJump = useCallback((qnId: string) => {
+    const element = document.getElementById(`question-${qnId}`);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
     }
-  };
+  }, []);
 
-  if (loading || !test) return <div className="p-8 text-lg">Loading...</div>;
+  const startTest = useCallback(() => {
+    setTestStarted(true);
+    goFullScreen();
+  }, [goFullScreen]);
+
+  // Render error state
+  if (loadError) {
+    return (
+      <FocusedLayout>
+        <div className="flex flex-col items-center justify-center h-screen p-8">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg max-w-lg">
+            <h2 className="font-bold text-xl mb-2">Error Loading Test</h2>
+            <p className="mb-4">{loadError}</p>
+            <button
+              onClick={() => router.back()}
+              className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded"
+            >
+              Go Back
+            </button>
+          </div>
+        </div>
+      </FocusedLayout>
+    );
+  }
+
+  // Render loading state
+  if (loading || !test) {
+    return (
+      <FocusedLayout>
+        <div className="flex flex-col items-center justify-center h-screen p-8">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+          <p className="text-lg text-gray-600">Loading test content...</p>
+        </div>
+      </FocusedLayout>
+    );
+  }
+
+  // Render start screen
+  if (!testStarted) {
+    return (
+      <FocusedLayout>
+        <div className="flex flex-col items-center justify-center h-screen bg-gray-50 p-8">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl w-full border border-blue-100">
+            <h1 className="text-3xl font-bold text-center text-blue-800 mb-6">
+              IELTS Reading Test
+            </h1>
+            <h2 className="text-2xl font-semibold text-center mb-8">
+              {test.title}
+            </h2>
+
+            <div className="mb-8 p-6 bg-blue-50 rounded-xl">
+              <h3 className="text-xl font-bold mb-4 text-blue-700">Test Instructions</h3>
+              <ul className="list-disc pl-6 space-y-2">
+                <li>You have <strong>60 minutes</strong> to complete the test</li>
+                <li>The test will automatically submit when time expires</li>
+                <li>Answer all questions before submitting</li>
+                <li>Use the flag feature to mark questions for review</li>
+                <li>The test will open in fullscreen mode</li>
+              </ul>
+            </div>
+
+            <div className="flex justify-center">
+              <button
+                onClick={startTest}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-12 rounded-2xl text-xl shadow-lg transition transform hover:scale-105"
+              >
+                Start Test
+              </button>
+            </div>
+          </div>
+        </div>
+      </FocusedLayout>
+    );
+  }
 
   return (
-    <FocusedLayout>
+    <div ref={containerRef} className="fixed inset-0 flex flex-col bg-white">
+      {/* Timer bar */}
       <div className="w-full fixed top-0 left-0 z-40 bg-white border-b shadow-sm flex items-center justify-center py-3">
         <ReadingTimer timeLeft={timeLeft} />
+        <button
+          onClick={() => setShowReview(true)}
+          className="absolute right-4 bg-blue-600 text-white px-4 py-1 rounded-lg"
+        >
+          Review
+        </button>
       </div>
 
-      <div className="flex flex-col md:flex-row max-w-7xl w-full mx-auto pt-20 pb-6 min-h-[80vh]">
-        <div className="md:w-1/2 w-full h-96 md:h-[76vh] overflow-y-auto border-r p-6 bg-white">
+      {/* Split-screen layout */}
+      <div className="flex flex-col md:flex-row flex-1 mt-12 overflow-hidden">
+        {/* Passage pane (left) */}
+        <div className="md:w-1/2 w-full h-full overflow-y-auto p-4 border-r">
           <ReadingPassagePane passages={test.reading_passages} />
         </div>
-        <div className="md:w-1/2 w-full h-[76vh] flex flex-col relative p-6">
-          <div className="sticky top-0 z-30 bg-white pb-2">
+
+        {/* Questions pane (right) */}
+        <div className="md:w-1/2 w-full h-full flex flex-col">
+          <div className="sticky top-0 z-30 bg-white p-2 border-b">
             <QuestionNavigator
               questions={allQuestions}
               answers={answers}
@@ -223,7 +294,8 @@ export default function ReadingTestPage() {
               onJump={handleJump}
             />
           </div>
-          <div className="flex-1 overflow-y-auto pt-2 pb-4">
+
+          <div className="flex-1 overflow-y-auto p-4">
             <ReadingQuestionPane
               passages={mappedPassages}
               answers={answers}
@@ -232,19 +304,18 @@ export default function ReadingTestPage() {
               onFlag={handleFlag}
             />
           </div>
-          <div className="sticky bottom-0 z-20 bg-white pt-3 pb-3 flex justify-end">
-            <button
-              onClick={() => {
-                handleStartTest();
-                setShowReview(true);
-              }}
-              disabled={submitting}
-              className="bg-blue-700 hover:bg-blue-900 text-white font-bold px-8 py-2 rounded-2xl shadow-xl text-lg transition"
-            >
-              {submitting ? 'Submitting...' : 'Review & Submit'}
-            </button>
-          </div>
         </div>
+      </div>
+
+      {/* Submit button */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <button
+          onClick={() => setShowReview(true)}
+          disabled={submitting}
+          className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg text-lg transition disabled:opacity-50"
+        >
+          Submit Test
+        </button>
       </div>
 
       {submitError && (
@@ -252,15 +323,10 @@ export default function ReadingTestPage() {
           {submitError}
         </div>
       )}
-      {submitting && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-blue-100 text-blue-800 border border-blue-300 px-6 py-3 rounded-2xl shadow-lg z-50 font-bold text-lg">
-          Submitting...
-        </div>
-      )}
 
       {showReview && (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
-          <div className="bg-white rounded-2xl p-8 shadow-2xl w-full max-w-lg border">
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-2xl border">
             <ReviewPanel
               questions={allQuestions}
               answers={answers}
@@ -271,16 +337,17 @@ export default function ReadingTestPage() {
               }}
               onSubmit={handleSubmit}
             />
-            <button
-              className="mt-4 text-blue-600 underline"
-              onClick={() => setShowReview(false)}
-              disabled={submitting}
-            >
-              Cancel
-            </button>
+            <div className="flex justify-center mt-4">
+              <button
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded"
+                onClick={() => setShowReview(false)}
+              >
+                Back to Test
+              </button>
+            </div>
           </div>
         </div>
       )}
-    </FocusedLayout>
+    </div>
   );
 }

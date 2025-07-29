@@ -2,13 +2,11 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext'; // Import theme context
+import { useState } from 'react';
+import { useTheme } from '@/components/ThemeProvider'; // Import theme from ThemeProvider
 
 export default function Community() {
-  const { user } = useAuth();
-  const { theme, toggleTheme } = useTheme(); // Use the theme and toggle function from ThemeContext
+  const { theme, toggleTheme } = useTheme(); // Get theme and toggle function from ThemeProvider
 
   const features = [
     {
@@ -47,9 +45,7 @@ export default function Community() {
 
   return (
     <motion.section
-      className={`px-4 sm:px-6 md:px-12 lg:px-20 py-16 bg-gradient-to-b ${
-        theme === 'light' ? 'from-gray-50 to-white' : 'from-gray-900 to-gray-800'
-      } min-h-screen`}
+      className="px-4 sm:px-6 md:px-12 lg:px-20 py-16 min-h-screen"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -57,7 +53,7 @@ export default function Community() {
       {/* Hero Section */}
       <div className="max-w-5xl mx-auto text-center mb-16">
         <motion.h1
-          className="text-4xl sm:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-6"
+          className="text-4xl sm:text-5xl font-extrabold tracking-tight mb-6"
           initial={{ y: -20 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.5 }}
@@ -65,7 +61,7 @@ export default function Community() {
           IELTS Community Hub
         </motion.h1>
         <motion.p
-          className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
+          className="text-xl max-w-3xl mx-auto"
           initial={{ y: 20 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
@@ -80,13 +76,11 @@ export default function Community() {
         <motion.button
           onClick={toggleTheme}
           className="relative inline-flex items-center p-1 rounded-full bg-gray-200 dark:bg-gray-700 transition-all duration-300 shadow-sm hover:shadow-md"
-          aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle theme"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >
-          <span className="w-8 h-8 flex items-center justify-center text-xl">
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </span>
+          {/* No icon or text here, just the button to toggle the theme */}
         </motion.button>
       </div>
 
@@ -95,7 +89,7 @@ export default function Community() {
         {features.map((feature, i) => (
           <motion.div
             key={i}
-            className="relative bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 overflow-hidden"
+            className="relative p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
@@ -105,12 +99,8 @@ export default function Community() {
             <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent dark:from-gray-900/20 dark:to-transparent opacity-50" />
             <div className="relative flex flex-col h-full">
               <span className="text-4xl mb-4">{feature.icon}</span>
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                {feature.title}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300 flex-grow">
-                {feature.description}
-              </p>
+              <h2 className="text-xl font-semibold mb-3">{feature.title}</h2>
+              <p className="flex-grow">{feature.description}</p>
               <Link href={feature.link}>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
@@ -127,16 +117,14 @@ export default function Community() {
 
       {/* Community Guidelines */}
       <motion.div
-        className="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 mb-16"
+        className="max-w-4xl mx-auto p-8 rounded-2xl shadow-lg border mb-16"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
         viewport={{ once: true }}
       >
-        <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-          Community Guidelines
-        </h2>
-        <ul className="text-gray-600 dark:text-gray-300 space-y-3">
+        <h2 className="text-2xl font-semibold mb-6">Community Guidelines</h2>
+        <ul className="space-y-3">
           {[
             'Be respectful and supportive of all community members',
             'Share authentic experiences and avoid misinformation',
@@ -160,13 +148,13 @@ export default function Community() {
         transition={{ duration: 0.5, delay: 0.6 }}
         viewport={{ once: true }}
       >
-        <Link href={user ? '/community/forum' : '/signup'}>
+        <Link href='/signup'>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-md hover:shadow-lg"
           >
-            {user ? 'Enter Community' : 'Join Our Community'}
+            Join Our Community
           </motion.button>
         </Link>
       </motion.div>

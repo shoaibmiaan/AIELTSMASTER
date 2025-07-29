@@ -3,10 +3,10 @@ import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from '@/context/AuthContext'; // Added useAuth import
+import { AuthProvider, useAuth } from '@/context/AuthContext';
 import Layout from '@/components/Layout';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { ThemeProvider } from '@/components/ThemeProvider'; // Removed unused useTheme
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const PUBLIC_ROUTES = [
   '/',
@@ -32,6 +32,8 @@ const PROTECTED_ROUTES = [
   '/lessons',
   '/progress',
   '/vocabulary',
+  '/leaderboard',
+  '/ai-tools',
 ];
 
 function RouteGuard({ children }: { children: React.ReactNode }) {
@@ -86,7 +88,7 @@ export default function AppWrapper({ Component, pageProps }: AppProps) {
   const useLayout = !barePages.includes(router.pathname);
 
   return (
-    <ThemeProvider> {/* Now using the component-based ThemeProvider */}
+    <ThemeProvider>
       <AuthProvider>
         <ErrorBoundary>
           <RouteGuard>

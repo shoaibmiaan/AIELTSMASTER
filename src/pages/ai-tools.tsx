@@ -1,11 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/context/ThemeContext';
 import toast from 'react-hot-toast';
-import Container from '@/components/Container';
-import PageSection from '@/components/PageSection';
 
 type Tool = {
   id: string;
@@ -19,8 +15,7 @@ type Tool = {
 
 export default function AIToolsPortal() {
   const router = useRouter();
-  const { user } = useAuth();
-  const { theme } = useTheme();
+  const user = false; // Simplified since auth is handled in _app.tsx
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [activeCategory, setActiveCategory] = useState('all');
@@ -31,6 +26,7 @@ export default function AIToolsPortal() {
     { id: 'text', name: 'Text', icon: 'file-text' },
     { id: 'image', name: 'Image', icon: 'image' },
     { id: 'code', name: 'Code', icon: 'code' },
+    { id: 'audio', name: 'Audio', icon: 'headphones' },
   ];
 
   const tools: Tool[] = [
@@ -41,7 +37,7 @@ export default function AIToolsPortal() {
         'Get instant feedback on your IELTS writing tasks with detailed scoring.',
       categories: ['text'],
       icon: 'edit-3',
-      color: 'text-indigo_dye bg-indigo_dye/10 dark:bg-indigo_dye/30',
+      color: 'bg-primary/10 text-primary',
       locked: true,
     },
     {
@@ -51,7 +47,7 @@ export default function AIToolsPortal() {
         'Practice IELTS speaking with AI-powered mock interviews and feedback.',
       categories: ['audio'],
       icon: 'mic',
-      color: 'text-persian_red bg-persian_red/10 dark:bg-persian_red/30',
+      color: 'bg-primary/10 text-primary',
       locked: true,
     },
     {
@@ -61,7 +57,7 @@ export default function AIToolsPortal() {
         'Improve reading comprehension with adaptive exercises and explanations.',
       categories: ['text'],
       icon: 'book-open',
-      color: 'text-slate_gray bg-slate_gray/10 dark:bg-slate_gray/30',
+      color: 'bg-primary/10 text-primary',
       locked: true,
     },
     {
@@ -71,7 +67,7 @@ export default function AIToolsPortal() {
         'Expand your academic vocabulary with personalized word lists and quizzes.',
       categories: ['text'],
       icon: 'bookmark',
-      color: 'text-peach bg-peach/10 dark:bg-peach/30',
+      color: 'bg-primary/10 text-primary',
       locked: true,
     },
     {
@@ -81,7 +77,7 @@ export default function AIToolsPortal() {
         'Identify and correct grammatical errors in your writing instantly.',
       categories: ['text'],
       icon: 'check-circle',
-      color: 'text-lavender_blush bg-lavender_blush/10 dark:bg-lavender_blush/30',
+      color: 'bg-primary/10 text-primary',
       locked: true,
     },
     {
@@ -91,7 +87,7 @@ export default function AIToolsPortal() {
         'Practice IELTS listening tests with adjustable difficulty levels.',
       categories: ['audio'],
       icon: 'headphones',
-      color: 'text-indigo_dye bg-indigo_dye/10 dark:bg-indigo_dye/30',
+      color: 'bg-primary/10 text-primary',
       locked: true,
     },
   ];
@@ -106,19 +102,23 @@ export default function AIToolsPortal() {
   });
 
   const handleToolClick = (tool: Tool) => {
-    if (tool.locked) {
+    if (tool.locked && !user) {
+      toast.error('Please log in to access premium features');
+      sessionStorage.setItem('redirectUrl', `/ai-tools/${tool.id}`);
+      router.push('/login');
+    } else if (tool.locked) {
       setShowUpgradeModal(true);
     } else {
       router.push(`/ai-tools/${tool.id}`);
     }
   };
 
-  const Icon = ({ name }: { name: string }) => {
+  const Icon = ({ name, className = '' }: { name: string; className?: string }) => {
     const icons: Record<string, JSX.Element> = {
       grid: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -134,7 +134,7 @@ export default function AIToolsPortal() {
       'file-text': (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -150,7 +150,7 @@ export default function AIToolsPortal() {
       image: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -166,7 +166,7 @@ export default function AIToolsPortal() {
       code: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -179,10 +179,10 @@ export default function AIToolsPortal() {
           />
         </svg>
       ),
-      'edit-3': (
+      headphones: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -191,14 +191,30 @@ export default function AIToolsPortal() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            d="M12 10v6m0 0l-3-3H6a2 2 0 01-2-2v-2a2 2 0 012-2h3l3-3m0 12l3-3h3a2 2 0 002-2v-2a2 2 0 00-2-2h-3l-3-3"
+          />
+        </svg>
+      ),
+      'edit-3': (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className={`h-5 w-5 ${className}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 3l6 6-9 9H6v-6l9-9z"
           />
         </svg>
       ),
       mic: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -214,7 +230,7 @@ export default function AIToolsPortal() {
       'book-open': (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -223,14 +239,14 @@ export default function AIToolsPortal() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
           />
         </svg>
       ),
       bookmark: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -239,14 +255,14 @@ export default function AIToolsPortal() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+            d="M5 3v18l7-5 7 5V3H5z"
           />
         </svg>
       ),
       'check-circle': (
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
+          className={`h-5 w-5 ${className}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -259,48 +275,70 @@ export default function AIToolsPortal() {
           />
         </svg>
       ),
-      headphones: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
-      ),
     };
-    return icons[name] || <div className="h-5 w-5" />;
+    return icons[name] || <div className={`h-5 w-5 ${className}`} />;
   };
 
   return (
-    <div className="min-h-screen bg-lavender_blush">
-      {/* Header */}
-      <PageSection title="AI-Powered Learning Tools">
-        <p className="text-slate_gray text-center max-w-2xl mx-auto">
-          Unlock premium AI tools to accelerate your IELTS preparation and
-          achieve your target score
-        </p>
-      </PageSection>
+    <div className="font-sans bg-background text-foreground min-h-screen">
+      <main className="container mx-auto px-4 sm:px-6 py-10">
+        <section className="mb-16">
+          <div className="text-center max-w-3xl mx-auto">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+              AI-Powered Learning Tools
+            </h1>
+            <p className="text-xl text-foreground/80 mb-8">
+              Unlock premium AI tools to accelerate your IELTS preparation and achieve your target score
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <button
+                className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md font-medium transition-colors duration-200 flex items-center"
+                onClick={() => router.push('/pricing')}
+              >
+                <i className="fas fa-rocket mr-2"></i> Explore Premium Tools
+              </button>
+              <button
+                className="bg-card hover:bg-card-hover text-primary border border-primary px-6 py-3 rounded-md font-medium transition-colors duration-200 flex items-center"
+                onClick={() => router.push('/strategies/ai-tools')}
+              >
+                <i className="fas fa-lightbulb mr-2"></i> Tool Strategies
+              </button>
+            </div>
+          </div>
+        </section>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Search and Categories */}
-        <div className="mb-8">
+        <section className="mb-16">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+            <h2 className="text-3xl font-bold text-foreground">Available Tools</h2>
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => setActiveCategory(category.id)}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors duration-200 ${
+                    activeCategory === category.id
+                      ? 'bg-primary text-white'
+                      : 'bg-card-hover text-foreground/80 hover:bg-accent'
+                  }`}
+                >
+                  <span className="mr-2">
+                    <Icon name={category.icon} />
+                  </span>
+                  {category.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="relative max-w-md mx-auto mb-6">
             <input
               type="text"
               placeholder="Search tools..."
-              className="w-full px-4 py-2 rounded-lg border border-slate_gray focus:outline-none focus:ring-2 focus:ring-indigo_dye bg-lavender_blush text-slate_gray"
+              className="w-full px-4 py-2 rounded-md border border-border bg-card text-foreground placeholder-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary transition-all duration-300"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <div className="absolute right-3 top-2.5 text-slate_gray">
+            <div className="absolute right-3 top-2.5 text-foreground/60">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"
@@ -318,182 +356,185 @@ export default function AIToolsPortal() {
             </div>
           </div>
 
-          <div className="flex overflow-x-auto pb-2 gap-2">
-            {categories.map((category) => (
+          {filteredTools.length === 0 ? (
+            <div className="bg-card border border-border rounded-xl shadow-sm p-8 text-center">
+              <i className="fas fa-tools text-4xl text-foreground/30 mb-4"></i>
+              <h3 className="text-xl font-semibold text-foreground">No tools found</h3>
+              <p className="text-foreground/60 mb-4">
+                No tools match your current filters or search query.
+              </p>
               <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`flex items-center px-4 py-2 rounded-full whitespace-nowrap transition-colors ${
-                  activeCategory === category.id
-                    ? 'bg-indigo_dye text-lavender_blush'
-                    : 'bg-lavender_blush text-slate_gray border border-slate_gray hover:bg-peach/20'
-                }`}
+                className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md font-medium"
+                onClick={() => router.push('/pricing')}
               >
-                <span className="mr-2">
-                  <Icon name={category.icon} />
-                </span>
-                {category.name}
+                <i className="fas fa-rocket mr-2"></i> Explore All Tools
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Tools Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTools.map((tool) => (
-            <Container
-              key={tool.id}
-              onClick={() => handleToolClick(tool)}
-              className="hover:shadow-md transition-shadow cursor-pointer overflow-hidden"
-            >
-              <div className="p-5">
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTools.map((tool) => (
                 <div
-                  className={`w-12 h-12 rounded-lg ${tool.color.split(' ')[1]} flex items-center justify-center mb-4`}
+                  key={tool.id}
+                  className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
+                  onClick={() => handleToolClick(tool)}
                 >
-                  <Icon name={tool.icon} className={tool.color.split(' ')[0]} />
-                </div>
-
-                <h3 className="text-lg font-semibold text-slate_gray mb-2">
-                  {tool.name}
-                </h3>
-                <p className="text-slate_gray mb-4">{tool.description}</p>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {tool.categories.map((catId) => {
-                    const catName = categories.find(
-                      (c) => c.id === catId
-                    )?.name;
-                    return catName ? (
-                      <span
-                        key={catId}
-                        className="text-xs bg-peach/20 text-slate_gray dark:bg-peach/30 dark:text-lavender_blush px-2 py-1 rounded"
-                      >
-                        {catName}
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {tool.name}
+                      </h3>
+                      <span className="px-2 py-1 text-xs rounded-full bg-primary/10 text-primary">
+                        {tool.locked ? 'Premium' : 'Free'}
                       </span>
-                    ) : null;
-                  })}
+                    </div>
+                    <p className="text-foreground/80 text-sm mb-4 line-clamp-2">
+                      {tool.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {tool.categories.map((catId) => {
+                        const catName = categories.find((c) => c.id === catId)?.name;
+                        return catName ? (
+                          <span
+                            key={catId}
+                            className="text-xs bg-accent/20 text-foreground px-2 py-1 rounded-full"
+                          >
+                            {catName}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-10 h-10 ${tool.color} rounded-full flex items-center justify-center`}>
+                        <Icon name={tool.icon} className="text-primary" />
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    className={`w-full py-3 px-4 font-medium transition-colors duration-200 ${
+                      tool.locked
+                        ? 'bg-card-hover text-primary hover:bg-accent'
+                        : 'bg-primary text-white hover:bg-primary/90'
+                    }`}
+                  >
+                    {tool.locked ? (
+                      <><i className="fas fa-lock mr-2"></i> Upgrade to Access</>
+                    ) : (
+                      <><i className="fas fa-play mr-2"></i> Open Tool</>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="bg-card/50 p-6 rounded-xl border border-border">
+          <h2 className="text-2xl font-bold mb-6 text-center text-foreground">Tool Tips</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mt-1">
+                  <i className="fas fa-rocket text-primary"></i>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 text-foreground">Maximize Tool Usage</h3>
+                  <ul className="list-disc pl-5 space-y-1 text-foreground/80 text-sm">
+                    <li>Use tools regularly to track progress</li>
+                    <li>Combine text and audio tools for comprehensive practice</li>
+                    <li>Review feedback to identify weak areas</li>
+                  </ul>
                 </div>
               </div>
-
-              <div className="bg-peach/20 px-5 py-3 border-t border-slate_gray flex justify-between items-center">
-                <span className="text-sm font-medium text-slate_gray">
-                  {tool.locked ? 'Premium Feature' : 'Available'}
-                </span>
-                <button
-                  className={`text-sm font-medium px-3 py-1 rounded transition-colors ${
-                    tool.locked
-                      ? 'bg-indigo_dye text-lavender_blush hover:bg-indigo_dye/80'
-                      : 'text-indigo_dye hover:text-indigo_dye/80'
-                  }`}
-                >
-                  {tool.locked ? 'Upgrade to Access' : 'Open Tool'}
-                </button>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mt-1">
+                  <i className="fas fa-clock text-primary"></i>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 text-foreground">Time Efficiency</h3>
+                  <p className="text-foreground/80 text-sm">
+                    Focus on one tool per session for 15-20 minutes to maintain concentration and achieve better results.
+                  </p>
+                </div>
               </div>
-            </Container>
-          ))}
-        </div>
-      </main>
+            </div>
+          </div>
+        </section>
 
-      {/* Upgrade Modal */}
-      {showUpgradeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <Container className="max-w-md w-full shadow-lg">
-            <div className="text-center mb-6">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-peach/20 dark:bg-peach/30 mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-indigo_dye"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-slate_gray mb-2">
-                Upgrade to Pro
-              </h3>
-              <p className="text-slate_gray">
+        {showUpgradeModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-card border border-border p-6 rounded-lg max-w-md w-full">
+              <h3 className="text-xl font-bold mb-3 text-foreground text-center">Upgrade to Pro</h3>
+              <p className="text-foreground/80 mb-4 text-center text-sm">
                 Unlock all premium AI tools to accelerate your IELTS preparation
               </p>
-            </div>
-
-            <div className="mb-6">
-              <div className="bg-peach/20 dark:bg-peach/30 rounded-lg p-4 mb-4">
-                <div className="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 text-indigo_dye mr-2 mt-0.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                  <div>
-                    <h4 className="font-medium text-slate_gray">
-                      Pro Features Include:
-                    </h4>
-                    <ul className="list-disc list-inside text-slate_gray text-sm mt-1">
-                      <li>All AI-powered learning tools</li>
-                      <li>Detailed feedback and analysis</li>
-                      <li>Progress tracking</li>
-                      <li>Priority support</li>
-                    </ul>
+              <div className="mb-6">
+                <div className="bg-accent/20 rounded-lg p-4 mb-4">
+                  <div className="flex items-start">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-primary mr-2 mt-0.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <div>
+                      <h4 className="font-medium text-foreground">Pro Features Include:</h4>
+                      <ul className="list-disc pl-5 space-y-1 text-foreground/80 text-sm mt-1">
+                        <li>All AI-powered learning tools</li>
+                        <li>Detailed feedback and analysis</li>
+                        <li>Progress tracking</li>
+                        <li>Priority support</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-medium text-foreground mb-1">Monthly</h4>
+                    <p className="text-2xl font-bold text-primary">$19.99</p>
+                    <p className="text-foreground/80 text-sm">per month</p>
+                  </div>
+                  <div className="p-4 border-2 border-primary bg-accent/20 rounded-lg">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium text-foreground mb-1">Yearly</h4>
+                        <p className="text-2xl font-bold text-primary">$149.99</p>
+                        <p className="text-foreground/80 text-sm">per year</p>
+                      </div>
+                      <span className="bg-primary text-white text-xs px-2 py-1 rounded">
+                        Save 37%
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <Container className="p-4">
-                  <h4 className="font-medium text-slate_gray mb-1">Monthly</h4>
-                  <p className="text-2xl font-bold text-indigo_dye">$19.99</p>
-                  <p className="text-slate_gray text-sm">per month</p>
-                </Container>
-                <Container className="p-4 border-2 border-indigo_dye bg-peach/20 dark:bg-peach/30">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-medium text-slate_gray mb-1">
-                        Yearly
-                      </h4>
-                      <p className="text-2xl font-bold text-indigo_dye">$149.99</p>
-                      <p className="text-slate_gray text-sm">per year</p>
-                    </div>
-                    <span className="bg-indigo_dye text-lavender_blush text-xs px-2 py-1 rounded">
-                      Save 37%
-                    </span>
-                  </div>
-                </Container>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => router.push('/pricing')}
+                  className="bg-primary hover:bg-primary/90 text-white py-2 rounded-md font-medium text-sm"
+                >
+                  Upgrade Now
+                </button>
+                <button
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="bg-card hover:bg-card-hover text-primary border border-primary py-2 rounded-md font-medium text-sm"
+                >
+                  Maybe Later
+                </button>
               </div>
             </div>
-
-            <div className="flex flex-col space-y-3">
-              <button
-                onClick={() => router.push('/pricing')}
-                className="w-full bg-indigo_dye hover:bg-indigo_dye/80 text-lavender_blush py-2.5 rounded-lg font-medium transition-colors"
-              >
-                Upgrade Now
-              </button>
-              <button
-                onClick={() => setShowUpgradeModal(false)}
-                className="w-full bg-lavender_blush hover:bg-peach/20 text-slate_gray py-2.5 rounded-lg font-medium border border-slate_gray transition-colors"
-              >
-                Maybe Later
-              </button>
-            </div>
-          </Container>
-        </div>
-      )}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

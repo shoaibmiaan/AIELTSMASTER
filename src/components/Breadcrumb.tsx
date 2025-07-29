@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
 import StudyStreak from '@/components/StudyStreak';
 
 type BreadcrumbProps = {
@@ -12,7 +11,6 @@ type BreadcrumbProps = {
 export default function Breadcrumb({ userId }: BreadcrumbProps) {
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
-  const { theme, toggleTheme } = useTheme();
 
   const buildPath = (i: number) => '/' + segments.slice(0, i + 1).join('/');
 
@@ -58,15 +56,8 @@ export default function Breadcrumb({ userId }: BreadcrumbProps) {
           })}
         </ol>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           {userId && <StudyStreak userId={userId} />}
-          <button
-            onClick={toggleTheme}
-            className="p-1 rounded-full bg-peach-500/20 dark:bg-peach-500/30"
-            aria-label="Toggle dark mode"
-          >
-            {theme === 'dark' ? '☀️' : '🌙'}
-          </button>
         </div>
       </div>
     </nav>

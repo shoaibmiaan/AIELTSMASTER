@@ -2,9 +2,12 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useTheme } from '@/components/ThemeProvider'; // Import the theme context
 
 export default function PracticePage() {
+  const { theme } = useTheme(); // Access the theme from context
   const router = useRouter();
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -82,7 +85,6 @@ export default function PracticePage() {
     }
   };
 
-  // Manual route handling for each module
   const startPractice = (type: string) => {
     const savedLogin = localStorage.getItem('isLoggedIn');
     if (isLoggedIn || savedLogin === 'true') {
@@ -144,11 +146,17 @@ export default function PracticePage() {
           <h2 className="text-3xl font-bold mb-8 text-center text-foreground">Practice Modules</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Listening Module */}
-            <div className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div
+              className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              style={{
+                background: `rgb(var(--color-card))`, // Dynamically apply background color based on theme
+                color: `rgb(var(--color-foreground))`, // Dynamically apply text color
+              }}
+            >
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <i className="fas fa-headphones text-blue-600 text-2xl"></i>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground text-center">Listening</h3>
+              <h3 className="text-xl font-semibold mb-3 text-center">Listening</h3>
               <p className="text-foreground/80 mb-4 text-center">
                 Practice with authentic recordings and questions from all sections
               </p>
@@ -161,11 +169,17 @@ export default function PracticePage() {
             </div>
 
             {/* Reading Module */}
-            <div className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div
+              className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              style={{
+                background: `rgb(var(--color-card))`,
+                color: `rgb(var(--color-foreground))`,
+              }}
+            >
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <i className="fas fa-book-open text-green-600 text-2xl"></i>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground text-center">Reading</h3>
+              <h3 className="text-xl font-semibold mb-3 text-center">Reading</h3>
               <p className="text-foreground/80 mb-4 text-center">
                 Work on passages from academic journals, magazines, and newspapers
               </p>
@@ -178,11 +192,17 @@ export default function PracticePage() {
             </div>
 
             {/* Writing Module */}
-            <div className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div
+              className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              style={{
+                background: `rgb(var(--color-card))`,
+                color: `rgb(var(--color-foreground))`,
+              }}
+            >
               <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <i className="fas fa-edit text-purple-600 text-2xl"></i>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground text-center">Writing</h3>
+              <h3 className="text-xl font-semibold mb-3 text-center">Writing</h3>
               <p className="text-foreground/80 mb-4 text-center">
                 Get AI feedback on Task 1 reports and Task 2 essays with band score predictions
               </p>
@@ -195,11 +215,17 @@ export default function PracticePage() {
             </div>
 
             {/* Speaking Module */}
-            <div className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div
+              className="bg-card border border-border rounded-xl shadow-md p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              style={{
+                background: `rgb(var(--color-card))`,
+                color: `rgb(var(--color-foreground))`,
+              }}
+            >
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4 mx-auto">
                 <i className="fas fa-microphone-alt text-red-600 text-2xl"></i>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground text-center">Speaking</h3>
+              <h3 className="text-xl font-semibold mb-3 text-center">Speaking</h3>
               <p className="text-foreground/80 mb-4 text-center">
                 Practice with AI examiners and get feedback on fluency, pronunciation, and vocabulary
               </p>
@@ -427,15 +453,6 @@ export default function PracticePage() {
           </div>
         </div>
       )}
-
-      <style jsx global>{`
-        html {
-          transition: background-color 0.3s ease;
-        }
-        body {
-          transition: background-color 0.3s ease;
-        }
-      `}</style>
     </div>
   );
 }
