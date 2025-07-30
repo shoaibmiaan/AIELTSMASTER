@@ -426,7 +426,7 @@ Then in your update script:
 ```bash
 # Extract documentation blocks
 awk '/DOC-START:theme-context-api/,/DOC-END:theme-context-api/' \
-  src/context/ThemeContext.tsx.bcp >> docs_sections/theme_context.md
+  src/context/ThemeContext.tsx >> docs_sections/theme_context.md
 ```
 
 ## Full Documentation
