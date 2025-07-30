@@ -16,6 +16,10 @@ interface ReadingTest {
   created_at: string;
   completed: boolean;
   best_score?: number;
+  last_progress?: {
+    answers: Record<string, string>;
+    time_spent: number;
+  };
 }
 
 export default function ReadingAssessmentRoom() {
@@ -41,7 +45,7 @@ export default function ReadingAssessmentRoom() {
         if (user) {
           const { data: userProgress } = await supabase
             .from('user_reading_progress')
-            .select('test_id, completed, score')
+            .select('test_id, completed, score, answers, time_spent')
             .eq('user_id', user.id);
 
           const testsWithProgress = testsData.map((test) => {
@@ -50,6 +54,10 @@ export default function ReadingAssessmentRoom() {
               ...test,
               completed: progress?.completed || false,
               best_score: progress?.score,
+              last_progress: progress?.answers ? {
+                answers: progress.answers,
+                time_spent: progress.time_spent || 0
+              } : undefined,
             };
           });
           setTests(testsWithProgress);
@@ -59,6 +67,7 @@ export default function ReadingAssessmentRoom() {
               ...test,
               completed: false,
               best_score: undefined,
+              last_progress: undefined,
             }))
           );
         }
@@ -72,6 +81,40 @@ export default function ReadingAssessmentRoom() {
     fetchTests();
   }, [user]);
 
+  // Save progress when leaving a test
+  useEffect(() => {
+    const saveProgressOnLeave = async () => {
+      if (router.pathname.includes('/assessmentRoom/reading/') && user) {
+        // This would be called from the actual test page, but we'll set up the listener here
+        const handleBeforeUnload = async () => {
+          // This assumes we have access to current test state
+          // In a real implementation, this would be in the test page component
+          const currentTestId = router.query.testId;
+          const currentAnswers = JSON.parse(sessionStorage.getItem(`test_${currentTestId}_answers`) || '{}');
+          const timeSpent = Number(sessionStorage.getItem(`test_${currentTestId}_time`) || 0);
+
+          if (currentTestId && Object.keys(currentAnswers).length > 0) {
+            await supabase
+              .from('user_reading_progress')
+              .upsert({
+                user_id: user.id,
+                test_id: currentTestId,
+                completed: false,
+                answers: currentAnswers,
+                time_spent: timeSpent,
+                updated_at: new Date().toISOString(),
+              });
+          }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+      }
+    };
+
+    saveProgressOnLeave();
+  }, [router, user]);
+
   const handleProtectedClick = (route: string) => {
     setCurrentPage(route);
     if (!user) {
@@ -84,6 +127,17 @@ export default function ReadingAssessmentRoom() {
 
   const startTest = (testId: string) => {
     const route = `/assessmentRoom/reading/${testId}`;
+    if (user) {
+      router.push(route);
+    } else {
+      setCurrentPage(route);
+      sessionStorage.setItem('redirectUrl', route);
+      setShowLoginModal(true);
+    }
+  };
+
+  const resumeTest = (testId: string) => {
+    const route = `/assessmentRoom/reading/${testId}?resume=true`;
     if (user) {
       router.push(route);
     } else {
@@ -114,6 +168,10 @@ export default function ReadingAssessmentRoom() {
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const completedTests = filteredTests.filter(test => test.completed);
+  const incompleteTests = filteredTests.filter(test => !test.completed && !test.last_progress);
+  const inProgressTests = filteredTests.filter(test => !test.completed && test.last_progress);
 
   return (
     <div className="font-sans bg-background text-foreground min-h-screen">
@@ -204,71 +262,133 @@ export default function ReadingAssessmentRoom() {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredTests.map((test) => (
-                <div
-                  key={test.id}
-                  className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
-                >
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-foreground">
-                        {test.title}
-                      </h3>
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(test.difficulty)}`}
+            <div className="space-y-8">
+              {inProgressTests.length > 0 && (activeTab === 'all' || activeTab === 'incomplete') && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-foreground">In Progress Tests</h3>
+                  <div className="space-y-4">
+                    {inProgressTests.map((test) => (
+                      <div
+                        key={test.id}
+                        className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4"
                       >
-                        {test.difficulty}
-                      </span>
-                    </div>
-                    <p className="text-foreground/80 text-sm mb-4 line-clamp-2">
-                      {test.description}
-                    </p>
-                    <div className="flex justify-between text-sm text-foreground/60 mb-4">
-                      <span>
-                        <i className="far fa-clock mr-1"></i>
-                        {test.duration_minutes} mins
-                      </span>
-                      <span>
-                        <i className="far fa-question-circle mr-1"></i>
-                        {test.question_count} questions
-                      </span>
-                    </div>
-                    {test.completed && test.best_score !== undefined && (
-                      <div className="mb-4">
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="font-medium text-foreground">
-                            Your Best Score:
-                          </span>
-                          <span className="font-bold text-foreground">
-                            {test.best_score}/40
-                          </span>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: `${(test.best_score / 40) * 100}%` }}
-                          ></div>
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-2">
+                              <h3 className="text-lg font-semibold text-foreground">{test.title}</h3>
+                              <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(test.difficulty)}`}>
+                                {test.difficulty}
+                              </span>
+                            </div>
+                            <p className="text-foreground/80 text-sm mb-2">{test.description}</p>
+                            <div className="flex flex-wrap gap-4 text-sm text-foreground/60 mb-2">
+                              <span><i className="far fa-clock mr-1"></i>{test.duration_minutes} mins</span>
+                              <span><i className="far fa-question-circle mr-1"></i>{test.question_count} questions</span>
+                              {test.last_progress && (
+                                <span><i className="fas fa-hourglass-half mr-1"></i>
+                                  {Math.round(test.last_progress.time_spent / 60)} mins spent
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => resumeTest(test.id)}
+                            className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-md font-medium transition-colors duration-200 w-full sm:w-auto"
+                          >
+                            <i className="fas fa-play-circle mr-2"></i> Resume Test
+                          </button>
                         </div>
                       </div>
-                    )}
+                    ))}
                   </div>
-                  <button
-                    onClick={() => startTest(test.id)}
-                    className={`w-full py-3 px-4 font-medium transition-colors duration-200 ${
-                      test.completed
-                        ? 'bg-card-hover text-primary hover:bg-accent'
-                        : 'bg-primary text-white hover:bg-primary/90'
-                    }`}
-                  >
-                    {test.completed ? (
-                      <><i className="fas fa-redo mr-2"></i> Retake Test</>
-                    ) : (
-                      <><i className="fas fa-play mr-2"></i> Start Test</>
-                    )}
-                  </button>
                 </div>
-              ))}
+              )}
+
+              {incompleteTests.length > 0 && (activeTab === 'all' || activeTab === 'incomplete') && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-foreground">Not Started Tests</h3>
+                  <div className="space-y-4">
+                    {incompleteTests.map((test) => (
+                      <div
+                        key={test.id}
+                        className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4"
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-2">
+                              <h3 className="text-lg font-semibold text-foreground">{test.title}</h3>
+                              <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(test.difficulty)}`}>
+                                {test.difficulty}
+                              </span>
+                            </div>
+                            <p className="text-foreground/80 text-sm mb-2">{test.description}</p>
+                            <div className="flex flex-wrap gap-4 text-sm text-foreground/60 mb-2">
+                              <span><i className="far fa-clock mr-1"></i>{test.duration_minutes} mins</span>
+                              <span><i className="far fa-question-circle mr-1"></i>{test.question_count} questions</span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => startTest(test.id)}
+                            className="bg-primary hover:bg-primary/90 text-white py-2 px-4 rounded-md font-medium transition-colors duration-200 w-full sm:w-auto"
+                          >
+                            <i className="fas fa-play mr-2"></i> Start Test
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {completedTests.length > 0 && (activeTab === 'all' || activeTab === 'completed') && (
+                <div>
+                  <h3 className="text-xl font-semibold mb-4 text-foreground">Completed Tests</h3>
+                  <div className="space-y-4">
+                    {completedTests.map((test) => (
+                      <div
+                        key={test.id}
+                        className="bg-card border border-border rounded-xl shadow-sm hover:shadow-md transition-all duration-300 p-4"
+                      >
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                          <div className="flex-1">
+                            <div className="flex justify-between items-center mb-2">
+                              <h3 className="text-lg font-semibold text-foreground">{test.title}</h3>
+                              <span className={`px-2 py-1 text-xs rounded-full ${getDifficultyColor(test.difficulty)}`}>
+                                {test.difficulty}
+                              </span>
+                            </div>
+                            <p className="text-foreground/80 text-sm mb-2">{test.description}</p>
+                            <div className="flex flex-wrap gap-4 text-sm text-foreground/60 mb-2">
+                              <span><i className="far fa-clock mr-1"></i>{test.duration_minutes} mins</span>
+                              <span><i className="far fa-question-circle mr-1"></i>{test.question_count} questions</span>
+                            </div>
+                            {test.best_score !== undefined && (
+                              <div className="mt-2">
+                                <div className="flex justify-between text-sm mb-1">
+                                  <span className="font-medium text-foreground">Your Best Score:</span>
+                                  <span className="font-bold text-foreground">{test.best_score}/40</span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className="bg-primary h-2 rounded-full"
+                                    style={{ width: `${(test.best_score / 40) * 100}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => startTest(test.id)}
+                            className="bg-card-hover text-primary hover:bg-accent py-2 px-4 rounded-md font-medium transition-colors duration-200 w-full sm:w-auto"
+                          >
+                            <i className="fas fa-redo mr-2"></i> Retake Test
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </section>

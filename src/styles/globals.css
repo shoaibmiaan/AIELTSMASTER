@@ -170,7 +170,6 @@ html {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-
 .flashcard .front {
   background-color: rgb(var(--color-light-blue-500));
   color: rgb(var(--color-paynes-gray-900));
@@ -188,4 +187,37 @@ html {
 
 .flashcard.flipped .back {
   transform: rotateY(0deg);
+}
+
+/* New styles */
+
+/* Glow shadow effect */
+.glow-shadow {
+  box-shadow: 0 0 20px rgba(241, 191, 152, 0.5);
+}
+
+/* Radial gradient background */
+.radial-gradient {
+  background: radial-gradient(circle at top right,
+    rgba(241, 191, 152, 0.2) 0%,
+    rgba(204, 41, 54, 0.1) 50%,
+    transparent 70%);
+}
+
+/* Floating animation */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+}
+
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Text gradient */
+.text-gradient {
+  background: linear-gradient(90deg, #cc2936, #f1bf98);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }

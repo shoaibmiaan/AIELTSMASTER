@@ -1,137 +1,125 @@
-// lib/reset-password.tsx
-
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabaseClient';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-import Layout from '@/components/Layout';
-import { Button } from '@/components/ui/Button';
-import { sendResetEmail } from '@/lib/passwordResetHelper';  // Import the helper function
-import { supabase } from '@/lib/supabaseClient';
 
-export default function ResetPassword() {
-  const router = useRouter();
-  const { token } = router.query;
+export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isEmailSent, setIsEmailSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
 
-  // Send the reset email
-  const handleSendResetEmail = async () => {
-    setIsLoading(true);
-    try {
-      await sendResetEmail(email);  // Call the helper function to send the reset email
-      setIsEmailSent(true);  // Set email sent flag to true
-    } catch (error) {
-      console.error("Error sending reset email:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        // User is in password recovery mode
+      }
+    });
+  }, []);
 
-  // Form submit handler
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      setError("Passwords don't match");
+      setLoading(false);
       return;
     }
 
-    setIsLoading(true);
     try {
-      // Perform password reset logic (check if token is valid, etc.)
-      const { error } = await supabase.auth.api.updateUser(token, {
-        password: password,
+      const { error } = await supabase.auth.updateUser({
+        password: password
       });
 
-      if (error) {
-        throw new Error(error.message);
-      }
-
-      setIsSuccess(true);
-      toast.success('Password successfully updated');
-    } catch (error) {
-      toast.error('Error resetting password');
+      if (error) throw error;
+      
+      setSuccess(true);
+      setTimeout(() => {
+        router.push('/profile');
+      }, 2000);
+    } catch (err) {
+      setError(err.message);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <Layout user={null} isLoading={isLoading}>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="flex items-center justify-center min-h-[calc(100vh-160px)]"
-      >
-        <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-md border border-gray-200 dark:border-gray-700">
-          {!isSuccess ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <h1 className="text-2xl font-bold mb-4 dark:text-white">
-                Reset Password
-              </h1>
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Set a new password
+        </h2>
+      </div>
 
-              {!isEmailSent ? (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium mb-2 dark:text-gray-300">
-                      Enter your email
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 dark:text-white"
-                      placeholder="Your email"
-                      required
-                    />
-                  </div>
-
-                  <Button
-                    type="button"
-                    variant="primary"
-                    onClick={handleSendResetEmail}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Sending...' : 'Send Reset Email'}
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div className="text-center">
-                    <div className="text-green-500 text-5xl mb-4">✓</div>
-                    <p className="mb-6 dark:text-gray-300">
-                      We've sent you a password reset email.
-                    </p>
-                    <p className="mb-6 dark:text-gray-300">
-                      Please check your inbox and follow the instructions to reset your password.
-                    </p>
-                  </div>
-                </>
-              )}
-            </form>
-          ) : (
-            <div className="text-center">
-              <div className="text-green-500 text-5xl mb-4">✓</div>
-              <p className="mb-6 dark:text-gray-300">
-                Your password has been successfully updated.
-              </p>
-              <a
-                href="/login"
-                className="inline-block w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 rounded-lg font-semibold text-white transition"
-              >
-                Sign In
-              </a>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          {error && (
+            <div className="mb-4 bg-red-50 border-l-4 border-red-400 p-4">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
+
+          {success ? (
+            <div className="mb-4 bg-green-50 border-l-4 border-green-400 p-4">
+              <p className="text-sm text-green-700">
+                Password updated successfully! Redirecting to your profile...
+              </p>
+            </div>
+          ) : (
+            <form className="space-y-6" onSubmit={handleResetPassword}>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  New Password
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength="8"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Confirm Password
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    minLength="8"
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? 'Updating...' : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
-      </motion.div>
-    </Layout>
+      </div>
+    </div>
   );
 }
