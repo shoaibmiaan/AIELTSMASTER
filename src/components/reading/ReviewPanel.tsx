@@ -8,10 +8,11 @@ interface Question {
 
 interface ReviewPanelProps {
   questions: Question[];
-  answers: Record<string, string>;
+  answers: Record<string, string | string[]>;
   flags: Record<string, boolean>;
   onJump: (questionId: string) => void;
   onSubmit: () => void;
+  onSubmitAnyway: () => void;
 }
 
 const ReviewPanel: React.FC<ReviewPanelProps> = ({
@@ -20,11 +21,17 @@ const ReviewPanel: React.FC<ReviewPanelProps> = ({
   flags = {},
   onJump,
   onSubmit,
+  onSubmitAnyway,
 }) => {
   const flagged = questions.filter((q) => flags[q.id]);
   const unanswered = questions.filter((q) => {
     const answer = answers[q.id];
-    return !answer || (typeof answer === 'string' && answer.trim() === '');
+    if (typeof answer === 'string') {
+      return !answer.trim();
+    } else if (Array.isArray(answer)) {
+      return answer.length === 0 || answer.every(item => !item.trim());
+    }
+    return true;
   });
 
   return (
@@ -92,7 +99,13 @@ const ReviewPanel: React.FC<ReviewPanelProps> = ({
       {unanswered.length > 0 && (
         <div className="text-red-600 font-medium text-center py-2">
           <span className="text-xl">You have unanswered questions.</span> Please
-          make sure to answer all before submitting, or you can submit anyway.
+          make sure to answer all before submitting.
+          <button
+            className="ml-4 bg-red-600 text-white px-4 py-1 rounded-lg font-bold"
+            onClick={onSubmitAnyway}
+          >
+            Submit Anyway
+          </button>
         </div>
       )}
     </div>

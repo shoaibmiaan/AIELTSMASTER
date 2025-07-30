@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import StudyStreak from '@/components/StudyStreak';
+import StudyStreak from '@/components/StreakDisplay';
 
 type BreadcrumbProps = {
   userId: string | null;
@@ -10,15 +10,27 @@ type BreadcrumbProps = {
 
 export default function Breadcrumb({ userId }: BreadcrumbProps) {
   const pathname = usePathname();
-  const segments = pathname.split('/').filter(Boolean);
 
-  const buildPath = (i: number) => '/' + segments.slice(0, i + 1).join('/');
+  // Improved path segmentation that handles special characters and multiple slashes
+  const segments = pathname
+    .split('/')
+    .filter(seg => seg.trim() !== '' && seg !== '/');
 
-  const formatSegment = (seg: string) =>
-    seg
-      .split('-')
-      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-      .join(' ');
+  const buildPath = (index: number) => {
+    return '/' + segments.slice(0, index + 1).join('/');
+  };
+
+  const formatSegment = (segment: string) => {
+    try {
+      const decoded = decodeURIComponent(segment);
+      return decoded
+        .split(/[-_]/)
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+    } catch {
+      return segment; // fallback if decode fails
+    }
+  };
 
   return (
     <nav
@@ -36,20 +48,20 @@ export default function Breadcrumb({ userId }: BreadcrumbProps) {
               <span className="font-medium hidden sm:inline">Home</span>
             </Link>
           </li>
-          {segments.map((seg, i) => {
-            const isLast = i === segments.length - 1;
+          {segments.map((segment, index) => {
+            const isLast = index === segments.length - 1;
             return (
-              <li key={i} className="flex items-center">
+              <li key={index} className="flex items-center">
                 <span className="px-1 text-slate-gray-500">/</span>
                 <Link
-                  href={buildPath(i)}
-                  className={`capitalize ${
+                  href={buildPath(index)}
+                  className={`${
                     isLast
                       ? 'text-slate-gray-500 dark:text-lavender-blush-500 font-semibold'
                       : 'hover:underline text-slate-gray-500 dark:text-peach-500'
                   }`}
                 >
-                  {formatSegment(decodeURIComponent(seg))}
+                  {formatSegment(segment)}
                 </Link>
               </li>
             );

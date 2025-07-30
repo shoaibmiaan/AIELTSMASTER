@@ -3,12 +3,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/Button';
 import { sendResetEmail } from '@/lib/passwordResetHelper';  // Import the helper function
+import { supabase } from '@/lib/supabaseClient';
 
 export default function ResetPassword() {
   const router = useRouter();

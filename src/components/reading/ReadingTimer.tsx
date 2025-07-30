@@ -1,8 +1,7 @@
-// src/components/reading/ReadingTimer.tsx
 import React from 'react';
 
 interface ReadingTimerProps {
-  timeLeft: number; // seconds
+  timeLeft: number;
 }
 
 function formatTime(seconds: number) {

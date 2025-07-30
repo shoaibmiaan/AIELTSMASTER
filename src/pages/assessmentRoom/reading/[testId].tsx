@@ -1,4 +1,3 @@
-// [testId].tsx
 'use client';
 
 import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
@@ -11,6 +10,7 @@ import QuestionNavigator from '@/components/reading/QuestionNavigator';
 import ReadingTimer from '@/components/reading/ReadingTimer';
 import ReviewPanel from '@/components/reading/ReviewPanel';
 import { logStudyActivity } from '@/lib/logging';
+import { ThemeProvider } from '@/components/themeProvider';
 
 interface ReadingQuestion {
   id: string;
@@ -52,17 +52,20 @@ export default function ReadingTestPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [testStarted, setTestStarted] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const goFullScreen = useCallback(() => {
     const el = document.documentElement;
     if (el.requestFullscreen) {
-      el.requestFullscreen().catch(err => {
+      el.requestFullscreen().then(() => {
+        setIsFullScreen(true);
+      }).catch(err => {
         console.error('Failed to enter fullscreen:', err);
       });
     }
   }, []);
 
-  // Load test data
   useEffect(() => {
     if (!testId) return;
     setLoading(true);
@@ -110,13 +113,44 @@ export default function ReadingTestPage() {
     loadTest();
   }, [testId]);
 
-  // Timer logic
+  useEffect(() => {
+    if (testId && testStarted) {
+      const savedTime = sessionStorage.getItem(`readingTestTime_${testId}`);
+      if (savedTime) {
+        setTimeLeft(parseInt(savedTime, 10));
+      }
+    }
+  }, [testId, testStarted]);
+
   useEffect(() => {
     if (!testStarted || timeLeft <= 0) return;
 
-    const timer = setInterval(() => setTimeLeft(t => t - 1), 1000);
+    const timer = setInterval(() => {
+      setTimeLeft(t => {
+        const newTime = t - 1;
+        if (testId) {
+          sessionStorage.setItem(`readingTestTime_${testId}`, newTime.toString());
+        }
+        return newTime;
+      });
+    }, 1000);
     return () => clearInterval(timer);
-  }, [testStarted, timeLeft]);
+  }, [testStarted, timeLeft, testId]);
+
+  useEffect(() => {
+    if (timeLeft === 0 && testStarted) {
+      handleSubmit();
+    }
+  }, [timeLeft, testStarted]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullScreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const handleAnswer = useCallback((qnId: string, value: string | string[]) => {
     setAnswers(a => ({ ...a, [qnId]: value }));
@@ -147,13 +181,17 @@ export default function ReadingTestPage() {
       if (error) throw error;
 
       logStudyActivity(user.id, 'Submitted Reading Test');
-      router.push(`/assessmentRoom/reading/result?testId=${test.id}`);
+      setSubmitSuccess(true);
+      sessionStorage.removeItem(`readingTestTime_${testId}`);
+      setTimeout(() => {
+        router.push(`/assessmentRoom/reading/result?testId=${test.id}`);
+      }, 2000);
     } catch (error: any) {
       setSubmitError(error.message || 'Failed to submit');
     } finally {
       setSubmitting(false);
     }
-  }, [test, answers, flags, router]);
+  }, [test, answers, flags, router, testId]);
 
   const mappedPassages = useMemo(() =>
     test?.reading_passages?.map(p => ({
@@ -194,7 +232,6 @@ export default function ReadingTestPage() {
     goFullScreen();
   }, [goFullScreen]);
 
-  // Render error state
   if (loadError) {
     return (
       <FocusedLayout>
@@ -214,7 +251,6 @@ export default function ReadingTestPage() {
     );
   }
 
-  // Render loading state
   if (loading || !test) {
     return (
       <FocusedLayout>
@@ -226,7 +262,6 @@ export default function ReadingTestPage() {
     );
   }
 
-  // Render start screen
   if (!testStarted) {
     return (
       <FocusedLayout>
@@ -265,89 +300,111 @@ export default function ReadingTestPage() {
   }
 
   return (
-    <div ref={containerRef} className="fixed inset-0 flex flex-col bg-white">
-      {/* Timer bar */}
-      <div className="w-full fixed top-0 left-0 z-40 bg-white border-b shadow-sm flex items-center justify-center py-3">
-        <ReadingTimer timeLeft={timeLeft} />
-        <button
-          onClick={() => setShowReview(true)}
-          className="absolute right-4 bg-blue-600 text-white px-4 py-1 rounded-lg"
-        >
-          Review
-        </button>
-      </div>
-
-      {/* Split-screen layout */}
-      <div className="flex flex-col md:flex-row flex-1 mt-12 overflow-hidden">
-        {/* Passage pane (left) */}
-        <div className="md:w-1/2 w-full h-full overflow-y-auto p-4 border-r">
-          <ReadingPassagePane passages={test.reading_passages} />
+    <ThemeProvider attribute="class" defaultTheme="light">
+      <div ref={containerRef} className="fixed inset-0 flex flex-col bg-white">
+        <div className="w-full fixed top-0 left-0 z-40 bg-white border-b shadow-sm flex items-center justify-center py-3">
+          <ReadingTimer timeLeft={timeLeft} />
+          <button
+            onClick={() => setShowReview(true)}
+            className="absolute right-4 bg-blue-600 text-white px-4 py-1 rounded-lg"
+          >
+            Review
+          </button>
         </div>
 
-        {/* Questions pane (right) */}
-        <div className="md:w-1/2 w-full h-full flex flex-col">
-          <div className="sticky top-0 z-30 bg-white p-2 border-b">
-            <QuestionNavigator
-              questions={allQuestions}
-              answers={answers}
-              flags={flags}
-              onJump={handleJump}
-            />
+        {!isFullScreen && (
+          <header className="bg-white shadow-md px-6 py-4 sticky top-12 z-10 border-b mt-2">
+            <div className="text-3xl font-bold text-gray-900">{test.title}</div>
+          </header>
+        )}
+
+        {!isFullScreen && (
+          <button
+            onClick={goFullScreen}
+            className="fixed top-16 left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg"
+          >
+            Return to Full Screen
+          </button>
+        )}
+
+        <div className="flex flex-col md:flex-row flex-1 mt-12 overflow-hidden">
+          <div className="md:w-1/2 w-full h-full overflow-y-auto p-4 border-r">
+            <ReadingPassagePane passages={test.reading_passages} />
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
-            <ReadingQuestionPane
-              passages={mappedPassages}
-              answers={answers}
-              flags={flags}
-              onAnswerChange={handleAnswer}
-              onFlag={handleFlag}
-            />
-          </div>
-        </div>
-      </div>
+          <div className="md:w-1/2 w-full h-full flex flex-col">
+            <div className="sticky top-0 z-30 bg-white p-2 border-b">
+              <QuestionNavigator
+                questions={allQuestions}
+                answers={answers}
+                flags={flags}
+                onJump={handleJump}
+              />
+            </div>
 
-      {/* Submit button */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <button
-          onClick={() => setShowReview(true)}
-          disabled={submitting}
-          className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg text-lg transition disabled:opacity-50"
-        >
-          Submit Test
-        </button>
-      </div>
-
-      {submitError && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-800 border border-red-300 px-6 py-3 rounded-2xl shadow-lg z-50 font-bold text-lg">
-          {submitError}
-        </div>
-      )}
-
-      {showReview && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-2xl border">
-            <ReviewPanel
-              questions={allQuestions}
-              answers={answers}
-              flags={flags}
-              onJump={(qnId) => {
-                setShowReview(false);
-                setTimeout(() => handleJump(qnId), 100);
-              }}
-              onSubmit={handleSubmit}
-            />
-            <div className="flex justify-center mt-4">
-              <button
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded"
-                onClick={() => setShowReview(false)}
-              >
-                Back to Test
-              </button>
+            <div className="flex-1 overflow-y-auto p-4">
+              <ReadingQuestionPane
+                passages={mappedPassages}
+                answers={answers}
+                flags={flags}
+                onAnswerChange={handleAnswer}
+                onFlag={handleFlag}
+              />
             </div>
           </div>
         </div>
-      )}
-    </div>
+
+        <div className="fixed bottom-4 right-4 z-50">
+          <button
+            onClick={() => setShowReview(true)}
+            disabled={submitting}
+            className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-lg shadow-lg text-lg transition disabled:opacity-50"
+          >
+            Submit Test
+          </button>
+        </div>
+
+        {submitError && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-red-100 text-red-800 border border-red-300 px-6 py-3 rounded-2xl shadow-lg z-50 font-bold text-lg">
+            {submitError}
+          </div>
+        )}
+
+        {submitSuccess && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-green-100 text-green-800 border border-green-300 px-6 py-3 rounded-2xl shadow-lg z-50 font-bold text-lg">
+            Test submitted successfully! Redirecting...
+          </div>
+        )}
+
+        {showReview && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl p-6 shadow-2xl w-full max-w-2xl border">
+              <ReviewPanel
+                questions={allQuestions}
+                answers={answers}
+                flags={flags}
+                onJump={(qnId) => {
+                  setShowReview(false);
+                  setTimeout(() => handleJump(qnId), 100);
+                }}
+                onSubmit={handleSubmit}
+                onSubmitAnyway={() => {
+                  setShowReview(false);
+                  handleSubmit();
+                }}
+              />
+              <div className="flex justify-center mt-4">
+                <button
+                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded"
+                  onClick={() => setShowReview(false)}
+                >
+                  Back to Test
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </ThemeProvider>
   );
 }

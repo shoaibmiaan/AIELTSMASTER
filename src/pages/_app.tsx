@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app';
 import { useRouter } from 'next/router';
 import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { AuthProvider, useAuth } from '@/context/AuthContext';  // Make sure to import useAuth here
 import Layout from '@/components/Layout';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -38,7 +38,7 @@ const PROTECTED_ROUTES = [
 
 function RouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();  // Now correctly imported
   const [routeChecked, setRouteChecked] = useState(false);
 
   useEffect(() => {
@@ -85,6 +85,7 @@ export default function AppWrapper({ Component, pageProps }: AppProps) {
     '/reset-password',
     '/thank-you',
   ];
+
   const useLayout = !barePages.includes(router.pathname);
 
   return (

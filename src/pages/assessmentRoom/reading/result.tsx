@@ -35,7 +35,7 @@ interface Attempt {
   id: string;
   test_id: string;
   user_id: string;
-  answers: Record<string, string>;
+  answers: Record<string, string | string[]>;
   submitted_at: string;
 }
 
@@ -175,14 +175,28 @@ export default function ReadingResultReview() {
     let correct = 0;
 
     allQuestions.forEach((q) => {
-      // Ensure that answers are strings and handle null or undefined values
-      const userAnswer = (attempt.answers?.[q.id] || '').trim().toLowerCase();
-      const correctAnswer = Array.isArray(q.answer)
-        ? (q.answer[0] || '').trim().toLowerCase()
-        : (q.answer || '').trim().toLowerCase();
+      const userAnswer = attempt.answers?.[q.id];
+      const correctAnswer = q.answer;
 
-      if (userAnswer === correctAnswer) {
-        correct++;
+      if (Array.isArray(correctAnswer)) {
+        // Handle array answers (multi-select)
+        if (Array.isArray(userAnswer)) {
+          // Compare sorted arrays for multi-select
+          const sortedUser = [...userAnswer].sort().map(s => s.trim().toLowerCase());
+          const sortedCorrect = [...correctAnswer].sort().map(s => s.trim().toLowerCase());
+          if (JSON.stringify(sortedUser) === JSON.stringify(sortedCorrect)) {
+            correct++;
+          }
+        }
+      } else {
+        // Handle string answers
+        const userAnswerStr = Array.isArray(userAnswer)
+          ? userAnswer[0] || ''
+          : userAnswer || '';
+
+        if (userAnswerStr.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+          correct++;
+        }
       }
     });
 
@@ -209,9 +223,18 @@ export default function ReadingResultReview() {
   }
 
   const allQuestions = passages.flatMap((p) => p.reading_questions || []);
+
+  // Fixed unanswered questions detection
   const unansweredQuestions = allQuestions.filter((q) => {
-    const userAnswer = attempt.answers?.[q.id] || '';
-    return !userAnswer?.trim();
+    const userAnswer = attempt.answers?.[q.id];
+
+    if (!userAnswer) return true;
+
+    if (Array.isArray(userAnswer)) {
+      return userAnswer.length === 0 || userAnswer.every(item => !item.trim());
+    }
+
+    return !userAnswer.trim();
   });
 
   const band = Math.max(1, Math.min(9, (score.correct / score.total) * 9));
@@ -241,8 +264,6 @@ export default function ReadingResultReview() {
         <hr className="my-6" />
 
         <div className="space-y-14">
-          {/* Removed Passage Body */}
-          {/* Focus now only on unanswered questions */}
           <ResultReviewPanel
             unanswered={unansweredQuestions}
             questions={allQuestions}

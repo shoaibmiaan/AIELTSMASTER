@@ -1,4 +1,3 @@
-// ReadingQuestionPane.tsx
 import React, { useMemo } from 'react';
 import { allowedQuestionTypes } from '@/utils/readingQuestionTypes';
 import { getQuestionTypeInfo } from '@/utils/readingQuestionTypes';
@@ -77,22 +76,19 @@ export default function ReadingQuestionPane({
   onFlag: (qnId: string) => void;
   readOnly?: boolean;
 }) {
-  // Process passages and group questions by type
   const processedPassages = useMemo(() => {
     return passages.map((p) => {
       const processedGroups = p.question_groups.map((g: any) => {
-        // Sort questions by question number
         const sortedQuestions = [...g.questions].sort(
           (a: any, b: any) => a.question_number - b.question_number
         );
-        
-        // Group consecutive questions by type
+
         const groupedQuestions: any[] = [];
         let currentGroup: any = null;
-        
+
         sortedQuestions.forEach((q: any) => {
           const qType = q.question_type;
-          
+
           if (!currentGroup || currentGroup.type !== qType) {
             currentGroup = {
               type: qType,
@@ -101,16 +97,16 @@ export default function ReadingQuestionPane({
             };
             groupedQuestions.push(currentGroup);
           }
-          
+
           currentGroup.questions.push(q);
         });
-        
+
         return {
           ...g,
           groupedQuestions,
         };
       });
-      
+
       return {
         ...p,
         question_groups: processedGroups,
@@ -128,7 +124,7 @@ export default function ReadingQuestionPane({
                 {g.instruction}
               </div>
             )}
-            
+
             {g.groupedQuestions.map((group: any, groupIdx: number) => (
               <div key={`group-${groupIdx}`} className="mb-6">
                 {group.instruction && (
@@ -136,18 +132,19 @@ export default function ReadingQuestionPane({
                     {group.instruction}
                   </div>
                 )}
-                
+
                 {group.questions.map((q: any, qidx: number) => {
                   const qnId = q.id || `p${p.passage_number}q${q.question_number}`;
-                  const userAnswer = answers[qnId] || (Array.isArray(q.correct_answer) ? [] : '');
-                  const flagged = flags[qnId];
                   const qType = q.question_type;
                   const qTypeInfo = getQuestionTypeInfo(qType);
-                  const mainText = q.question_text || q.text || '';
                   const isTFNG = qType === 'Identifying Information (True/False/Not Given)';
                   const isYNNG = qType === "Identifying Writer's Views/Claims (Yes/No/Not Given)";
-                  const dropdownOptions = 
+                  const dropdownOptions =
                     q.options?.length ? q.options : isTFNG ? T_F_NG : isYNNG ? Y_N_NG : [];
+
+                  const userAnswer = answers[qnId] || (qTypeInfo?.ui === 'options' ? [] : '');
+                  const flagged = flags[qnId];
+                  const mainText = q.question_text || q.text || '';
 
                   return (
                     <div
@@ -174,8 +171,7 @@ export default function ReadingQuestionPane({
                         </button>
                       </div>
                       <div className="mb-2 text-base font-medium">{mainText}</div>
-                      
-                      {/* Question input based on type */}
+
                       {isTFNG || isYNNG ? (
                         <select
                           value={userAnswer || ''}
